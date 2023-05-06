@@ -1,18 +1,7 @@
 
-
-
-
-.navbar-nav{
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
+.right-aligned{
+  justify-content: flex-end;
 }
-@media (prefers-reduced-motion: no-preference) {
-
-}
-
-
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

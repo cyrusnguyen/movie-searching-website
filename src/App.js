@@ -1,47 +1,24 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {
-  Collapse,
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-} from 'reactstrap';
+import NavBar from './components/NavBar/NavBar';
+import SearchBar from './components/SearchBar/SearchBar';
+import Footer from './components/Footer/Footer';
+import Trending from './components/Trending/Trending';
+import Intro from './components/Introduction/Introduction';
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
 
 
   return (
-    <div>
-      <Navbar className="navbar-expand-lg" sticky="top" color="dark" dark >
-        <NavbarBrand href="/" className="me-auto">
-          230MOVIES
-        </NavbarBrand>
-        <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="me-2" />
-        <Collapse isOpen={!collapsed} navbar>
-          <Nav className="container-fluid" navbar>
-            <NavItem>
-              <NavLink>Home</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink>Movies</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink>Register</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink>Login</NavLink>
-            </NavItem>
-            <NavItem className="ml-auto">
-              <NavLink>USERNAME</NavLink>
-            </NavItem>
-          </Nav>
-        </Collapse>
-      </Navbar>
+    <div className="App">
+      <NavBar />
+      <SearchBar />
+      <Intro />
+      <Trending />
+      <Footer />
     </div>
+
   );
 }
 
