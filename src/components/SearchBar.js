@@ -8,10 +8,8 @@ export default function SearchBar(){
         <div className="searchBarContainer">
             <h2> Search for movie names</h2>
             <FiSearch className="searchIcon"></FiSearch>
-            <input type="text" className="searchInput" placeholder="Search...">
-            
-            </input>
-            <AiOutlineArrowRight class="arrowIcon"></AiOutlineArrowRight>
+            <input type="text" className="searchInput" placeholder="Search..." />
+            <AiOutlineArrowRight className="arrowIcon"></AiOutlineArrowRight>
 
         </div>
         </SearchBarComponent>
@@ -26,6 +24,7 @@ const SearchBarComponent = styled.div`
     
     .searchBarContainer {
         text-align: center;
+
     }
     .searchIcon {
         font-size: 1.5rem;
@@ -35,13 +34,15 @@ const SearchBarComponent = styled.div`
     .searchInput {
         padding: 20px 40px;
         border: 2px solid var(--color-white);
+        box-shadow: 0px 0px 3px var(--color-white);
         border-radius: 20px;
         width: 60%;
         height: 3rem;
         color: var(--color-white);
         background: var(--color-black);
-        opacity: 0.5;
+        opacity: 0.6;
         font-size: 1.3rem;
+
     
 
         &:hover {

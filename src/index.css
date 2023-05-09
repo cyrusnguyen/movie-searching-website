@@ -9,8 +9,10 @@ body, html{
   -moz-osx-font-smoothing: grayscale;
   min-height: 100%;
   background-color: var(--color-brighter-black);
+  
 
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -30,6 +32,7 @@ a:hover {
   --color-black: rgb(25, 25, 25);
   --color-brighter-black: rgb(50, 50, 50);
   --color-blue: #652dff;
+  --color-brighter-blue: #b5cbff;
   --color-gradient: linear-gradient(315deg, #7f53ac 0%, #647dee 74%);
 }
 

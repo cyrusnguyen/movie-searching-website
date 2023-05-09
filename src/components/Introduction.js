@@ -1,12 +1,19 @@
 import styled from "styled-components"
+import SearchBar from "./SearchBar";
+import React from "react"
 
 export default function Intro() {
     return (
-        <IntroComponent> 
-            <h1 class="introTitle">Minh Nguyen's<br
+        <React.Fragment>
+            <SearchBar />
+            <IntroComponent> 
+            
+            <h1 className="introTitle">Minh Nguyen's<br
             />
             Movie Searching Website</h1>    
-        </IntroComponent>
+            </IntroComponent>
+        </React.Fragment>
+        
     )
 }
 

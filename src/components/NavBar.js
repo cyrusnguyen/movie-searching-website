@@ -9,44 +9,49 @@ import {
   NavItem,
   NavLink,
 } from 'reactstrap';
-import logo from '../../assets/logo.png';
+import logo from '../assets/logo.png';
 import styled from 'styled-components';
-
+import { Link } from 'react-router-dom'
+import Movies from './Movies';
+import Login from './Login';
 export default function NavBar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
 
   return (
     <NavBarComponent>
       <Navbar className="navbar-expand-lg" sticky="top" dark >
-        <NavbarBrand href="/" className="me-3">
+        <NavbarBrand as={Link} to="/" className="me-3">
+
           <img src={logo} alt="Site logo" width="50"/>
-          
+
         </NavbarBrand>
         <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="me-2" />
         <Collapse isOpen={!collapsed} navbar>
           <Nav className="container-fluid" navbar>
             <NavItem>
-              <NavLink>Home</NavLink>
+              <NavBarLink to="/">Home</NavBarLink>
             </NavItem>
             <NavItem>
-              <NavLink>Movies</NavLink>
+              <NavBarLink to="/movies">Movies</NavBarLink>
             </NavItem>
             <NavItem>
-              <NavLink>Register</NavLink>
+              <NavBarLink to="/register">Register</NavBarLink>
             </NavItem>
             <NavItem>
-              <NavLink>Login</NavLink>
+              <NavBarLink to="/login">Login</NavBarLink>
             </NavItem>
           </Nav>
           <Nav className="ml-auto" navbar>
-            <NavItem style={{ }}>
-              <NavLink style={{ alignItems: "center"}}>MEMBER LOGIN </NavLink>
+            <NavItem>
+              <NavBarLink>MEMBER LOGIN </NavBarLink>
             </NavItem>
           </Nav>
         </Collapse>
       </Navbar>
+        
     </NavBarComponent>
+    
   );
 }
 
@@ -54,4 +59,13 @@ const NavBarComponent = styled.div`
     background-color: var(--color-black);
     position: relative;
     padding: 0 0;
+`;
+const NavBarLink = styled(Link)`
+    font-size: 1.2rem;
+    color: var(--color-white);
+    text-decoration: none;
+    padding: 5px 15px;
+    &:hover {
+        color: var(--color-blue);
+    }
 `;
