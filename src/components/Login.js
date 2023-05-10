@@ -1,14 +1,17 @@
 import styled from "styled-components"
-import NavBar from "./NavBar";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
+import { useLogin } from "../api/authAPI";
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { login, isLoggedIn, message } = useLogin();
+
     const handleSubmit = (event) => {
         event.preventDefault();
+        login(email, password);
       };
     return(
         <React.Fragment>
@@ -45,6 +48,7 @@ export default function Login() {
                     <Button className="btnLogin" color="primary" type="submit">Login</Button>
                     <p>Not have an account? <Link className="registerLink" to="/register">Register here</Link></p>
                     </div>
+                    {message && <div>{message}</div>}
                 </Form>
             </div>
             </LoginComponent>
@@ -53,9 +57,8 @@ export default function Login() {
 }
 const LoginComponent = styled.div`
     background: var(--color-brighter-black);
-    width: 100%;
-    height: 70vh;
     color: var(--color-white);
+    height: 70vh;
     display: flex;
     justify-content: center;
     align-items: center;

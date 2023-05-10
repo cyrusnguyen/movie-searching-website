@@ -9,7 +9,7 @@ import Home from './components/Home';
 import NotFound from './components/NotFound';
 import MovieDetail from './components/MovieDetail';
 import PersonDetail from './components/PersonDetail';
-
+import "./App.css"
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './components/Register';
@@ -24,6 +24,8 @@ function App() {
 
       <NavBar />
 
+      
+
     
       <Routes>
             <Route path="/" element={ <Home/> } />
@@ -35,6 +37,7 @@ function App() {
             <Route path="*" element={ <NotFound /> } />
       </Routes>
       <Footer />
+
     </div>
 
   );

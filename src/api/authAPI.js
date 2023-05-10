@@ -1,38 +1,93 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 const API_URL = "http://sefdb02.qut.edu.au:3000/user"
 
-export function useRegistration(email, password) {
+export function useRegistration() {
     const [isCreated, setCreated] = useState(false);
     const [message, setMesaage] = useState('');
-    const [statusCode, setStatusCode] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
 
     const registerURL = API_URL + "/register";
-
-    const register = async () => { 
+    const register = async (email, password) => { 
         try{
-            return await fetch(registerURL, {
+            const response = await fetch(registerURL, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({email: email, password: password})
-            }).then((data) => {
-                setCreated(data.ok);
+            });
+
+            if (!response.ok){
+                if (response.status === 400){
+                    setMesaage("Request body incomplete, both email and password are required");
+                }
+                else if (response.status === 409){
+                    setMesaage("User already exists.");
+                }
+                else if (response.status === 429){
+                    setMesaage("Too many requests, please try again later.");
+                }
                 setIsLoading(false);
-                setMesaage(data.statusText);
-                setStatusCode(data.statusCode)
-            })
-        }catch(e){
-            setMesaage(e);
-            setIsLoading(false);
-            setErrorMessage(e);
-            return e;
+                setCreated(false);
+                
+            }
+            else {
+                setCreated(true);
+                setIsLoading(false);
+                setMesaage("User created successfully");
+            }
+
+        }catch (error) {
+            throw new Error(error.message)
         }
+            
         
     }
 
-    return { register, errorMessage: errorMessage, statusCode: statusCode, isCreated: isCreated, message: message,  loading: isLoading };
+    return { register, message: message, isCreated: isCreated, message: message,  loading: isLoading };
 }
-export function useLogin(email, password) {
+export function useLogin() {
+    const loginURL = API_URL + "/login";
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [message, setMesaage] = useState('');
+    const navigate = useNavigate();
+
+    const login = async (email, password) => { 
+        try{
+            const response = await fetch(loginURL, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email: email, password: password})
+            });
+            if (!response.ok){
+                if(response.status === 401) {
+                    setMesaage("Incorrect email or password");
+                }else if(response.status === 400){
+                    setMesaage("Request body incomplete, both email and password are required");
+                }else if(response.status === 429){
+                    setMesaage("Too many requests, please try again later.");
+                }
+                setIsLoggedIn(false);
+
+            } else{
+                response.json().then((res) => {
+                    setIsLoggedIn(true);
+                    setMesaage("Logged in successfully");
+                    localStorage.setItem("bearerToken", res.bearerToken.token);
+                    localStorage.setItem("refreshToken", res.refreshToken.token);
+                    navigate('/');
+                  })
+            }
+        }catch (error) {
+            throw new Error(error.message)
+        }
+
+    }
+
+    const logout = () => {
+        localStorage.removeItem("bearerToken");
+        localStorage.removeItem("refreshToken");
+        navigate('/');
+    }
+    return ( { logout, login, isLoggedIn: isLoggedIn, message: message})
 
 }

@@ -2,7 +2,12 @@
 .right-aligned{
   justify-content: flex-end;
 }
-
+.App {
+  background: var(--color-brighter-black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 @keyframes App-logo-spin {
   from {

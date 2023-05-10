@@ -7,8 +7,9 @@ body, html{
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100%;
-  background-color: var(--color-brighter-black);
+  
+  background: var(--color-brighter-black);
+  
   
 
 }

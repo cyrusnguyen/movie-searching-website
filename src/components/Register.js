@@ -1,5 +1,4 @@
 import styled from "styled-components"
-import NavBar from "./NavBar";
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
@@ -7,15 +6,14 @@ import { useRegistration } from "../api/authAPI"
 export default function Register() {
     const [name, setName] = useState('');
     const [isClickable, setIsClickable] = useState(false);
+    const [isPassMatch, setIsPassMatch] = useState(true);
     const [state, setState] = useState({
         email: "",
         password: "",
         confirmPassword: ""
       });
-    
-    const [registrationMessage, setRegistrationMessage] = useState('');
-    const { register, errorMessage, isCreated, message, statusCode, loading } = useRegistration(state.email, state.password);
-    const [isPassMatch, setIsPassMatch] = useState(true);
+    const { register, isCreated, message, loading } = useRegistration();
+
 
     useEffect(() => {
         if (state.password && state.confirmPassword){
@@ -45,13 +43,7 @@ export default function Register() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        register().then(() => {
-            if (isCreated) {
-                setRegistrationMessage("Account created successfully");
-            }
-            
-        });
-        
+        register(state.email, state.password);
     };
 
     return(
@@ -117,9 +109,15 @@ export default function Register() {
                         <Button className="btnRegister" disabled={!isClickable} color="primary" type="submit">Sign up</Button>
                         <p>Already a member? <Link className="loginLink" to="/login">Login here</Link></p>
                         </div>
-                        <div className="input-error">
-                            {isPassMatch ? "" : "Error: Passwords do not match"}
+                        {isPassMatch ? "" : <div className="errorMessage">Error: Passwords do not match</div>}
+                        {isCreated && isPassMatch &&
+                        <div className="successMessage">
+                            {message}. <Link className="loginLink" to="/login">Click here to log in.</Link>
                         </div>
+                        }
+                        {!isCreated && message && isPassMatch && <div className="errorMessage">{message}</div>}
+
+
                     </Form>
                     
             </div>
@@ -167,6 +165,25 @@ const RegisterComponent = styled.div`
 
     }
 
+    .errorMessage {
+        color: red;
+        margin-bottom: 10px;
+        text-align: center;
+
+    }
+
+    .successMessage {
+        color: green;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .loginLink {
+        text-decoration: none;
+        color: var(--color-blue);
+        
+    }
+
     .bottomContainer {
         text-align: center;
         padding-top: 10px;
@@ -188,17 +205,11 @@ const RegisterComponent = styled.div`
     
         }
         
-        .input-error {
-            text-align: center;
-        }
-
+        
+        
         p {
             padding-top: 5px;
-            .loginLink {
-                text-decoration: none;
-                color: var(--color-blue);
-                
-            }
+            
         }
     }
     

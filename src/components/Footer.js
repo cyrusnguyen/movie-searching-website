@@ -19,11 +19,12 @@ export default function Footer() {
 }
 
 const FooterComponent = styled.footer` 
+    margin-top: auto;
     color: var(--color-white);
     background-color: var(--color-black);
     text-align: center;
     width: 100%;
-    height: 6rem;
+
     padding: 1rem;
     a {
         text-decoration: none;

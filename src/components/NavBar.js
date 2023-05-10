@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
   Collapse,
@@ -11,11 +11,20 @@ import {
 } from 'reactstrap';
 import logo from '../assets/logo.png';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Movies from './Movies';
 import Login from './Login';
+import { useLogin } from '../api/authAPI';
 export default function NavBar() {
   const [collapsed, setCollapsed] = useState(true);
+  const { logout, isLoggedin, message } = useLogin();
+  const auth = localStorage.getItem('bearerToken')
+  const navigate = useNavigate();
+
+  const handleSignout = () => {
+    logout();
+    navigate('/login');
+  }
 
 
   return (
@@ -41,6 +50,9 @@ export default function NavBar() {
             <NavItem>
               <NavBarLink to="/login">Login</NavBarLink>
             </NavItem>
+            {auth && <NavItem>
+              <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
+            </NavItem>}
           </Nav>
           <Nav className="ml-auto" navbar>
             <NavItem>
