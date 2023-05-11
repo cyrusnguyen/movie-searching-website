@@ -5,7 +5,6 @@ import React from "react"
 export default function Intro() {
     return (
         <React.Fragment>
-            <SearchBar />
             <IntroComponent> 
             
             <h1 className="introTitle">Minh Nguyen's<br

@@ -5,7 +5,7 @@ import React from "react"
 export default function NotFound() {
     return(
         <React.Fragment>
-            <SearchBar />
+
             <NotFoundComponent>
             
             <h1 className="notFoundTitle"> 404! NOT FOUND </h1>

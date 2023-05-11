@@ -16,13 +16,14 @@ import Register from './components/Register';
 
 
 function App() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [ searchTerm, setSearchTerm ] = useState("");
 
 
   return (
     <div className="App">
 
       <NavBar />
+      <SearchBar />
 
       
 
@@ -30,6 +31,7 @@ function App() {
       <Routes>
             <Route path="/" element={ <Home/> } />
             <Route path="/movies" element={ <Movies/> }/>
+            <Route path="/movies/:search" element={ <Movies/> }/>
             <Route path="/movie/:id" element={ <MovieDetail/> }/>
             <Route path="/person/:id" element={ <PersonDetail/> }/>
             <Route path="/login" element={ <Login/> } />

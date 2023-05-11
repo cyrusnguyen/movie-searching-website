@@ -12,14 +12,17 @@ import {
 import logo from '../assets/logo.png';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom'
-import Movies from './Movies';
-import Login from './Login';
 import { useLogin } from '../api/authAPI';
+import { useAuth } from '../api/authAPI';
+
+
 export default function NavBar() {
   const [collapsed, setCollapsed] = useState(true);
   const { logout, isLoggedin, message } = useLogin();
+  const { user, isAuthenticated } = useAuth();
   const auth = localStorage.getItem('bearerToken')
   const navigate = useNavigate();
+  
 
   const handleSignout = () => {
     logout();
@@ -44,20 +47,22 @@ export default function NavBar() {
             <NavItem>
               <NavBarLink to="/movies">Movies</NavBarLink>
             </NavItem>
+            
+            {auth ? 
             <NavItem>
-              <NavBarLink to="/register">Register</NavBarLink>
-            </NavItem>
-            <NavItem>
-              <NavBarLink to="/login">Login</NavBarLink>
-            </NavItem>
-            {auth && <NavItem>
               <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
-            </NavItem>}
-          </Nav>
-          <Nav className="ml-auto" navbar>
-            <NavItem>
-              <NavBarLink>MEMBER LOGIN </NavBarLink>
+            </NavItem> :
+            <><NavItem>
+                <NavBarLink to="/register">Register</NavBarLink>
+              </NavItem><NavItem>
+                  <NavBarLink to="/login">Login</NavBarLink>
+                </NavItem></>
+            }
+            {auth &&
+            <NavItem className="ms-auto ">
+              Hello, {user}
             </NavItem>
+            }
           </Nav>
         </Collapse>
       </Navbar>
@@ -71,6 +76,14 @@ const NavBarComponent = styled.div`
     background-color: var(--color-black);
     position: relative;
     padding: 0 0;
+    color: var(--color-white);
+    font-size: 1.2rem;
+    
+    .helloUser{
+      border: 1px solid var(--color-white);
+      border-radius: 3px;
+
+    }
 `;
 const NavBarLink = styled(Link)`
     font-size: 1.2rem;

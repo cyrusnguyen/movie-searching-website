@@ -1,17 +1,38 @@
 import styled from "styled-components";
 import { FiSearch } from "react-icons/fi"
-import { AiOutlineArrowRight } from "react-icons/ai"
+import { AiOutlineArrowRight, AiOutlineClose } from "react-icons/ai"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Form } from 'reactstrap';
 
 export default function SearchBar(){
+    const [ searchTerm, setSearchTerm ] = useState("")
+    const navigate = useNavigate();
+    
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        navigate(`/movies/${searchTerm}`);
+    }
+
     return (
         <SearchBarComponent>
-        <div className="searchBarContainer">
-            <h2> Search for movie names</h2>
-            <FiSearch className="searchIcon"></FiSearch>
-            <input type="text" className="searchInput" placeholder="Search..." />
-            <AiOutlineArrowRight className="arrowIcon"></AiOutlineArrowRight>
+            <Form onSubmit={handleSubmit}>
+            <div className="searchBarContainer">
+                <h2> Search for movie names</h2>
+                
+                
 
-        </div>
+                <FiSearch className="searchIcon"></FiSearch>
+                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="searchInput" placeholder="Search..." />
+                
+
+                <AiOutlineArrowRight className="arrowIcon" onClick={handleSubmit}></AiOutlineArrowRight>
+                {searchTerm && 
+                <AiOutlineClose className="clearSearchBtn" onClick={() => setSearchTerm("") }></AiOutlineClose> }
+                
+
+            </div>
+            </Form>
         </SearchBarComponent>
     );
 }
@@ -32,6 +53,7 @@ const SearchBarComponent = styled.div`
         color: var(--color-white);
     }
     .searchInput {
+        
         padding: 20px 40px;
         border: 2px solid var(--color-white);
         box-shadow: 0px 0px 3px var(--color-white);
@@ -51,6 +73,15 @@ const SearchBarComponent = styled.div`
             opacity: 1;
         }
         
+    }
+
+    .clearSearchBtn {
+        color: var(--color-white);
+        background-color: transparent;
+        border: none;
+        font-size: 1.5rem;
+        transform: translateX(-95px) translateY(-3px);
+        cursor: pointer; 
     }
     .arrowIcon {
         color: white;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import jwtDecode from "jwt-decode";
 const API_URL = "http://sefdb02.qut.edu.au:3000/user"
 
 export function useRegistration() {
@@ -74,6 +75,8 @@ export function useLogin() {
                     setMesaage("Logged in successfully");
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
+                    console.log(res)
+                    console.log(jwtDecode(localStorage.getItem("bearerToken")));
                     navigate('/');
                   })
             }
@@ -84,10 +87,66 @@ export function useLogin() {
     }
 
     const logout = () => {
-        localStorage.removeItem("bearerToken");
-        localStorage.removeItem("refreshToken");
-        navigate('/');
+        const logoutURL = API_URL + "/logout";
+        const token = localStorage.getItem("refreshToken")
+        if (token){
+            fetch(loginURL, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    refreshToken: token
+                })
+            });
+            localStorage.removeItem("bearerToken");
+            localStorage.removeItem("refreshToken");
+            navigate('/');
+        }else{
+            console.log("User not logged in")
+        }
+        
+        
     }
     return ( { logout, login, isLoggedIn: isLoggedIn, message: message})
 
 }
+
+export function useAuth () {
+    const { logout, isLoggedin, message } = useLogin();
+    const [authState, setAuthState] = useState({
+        isAuthenticated: false,
+        user: null,
+        token: null,
+    });
+
+    useEffect(() => {
+        const token = localStorage.getItem("bearerToken");
+        if (token) {
+            const user = jwtDecode(localStorage.getItem("bearerToken")).email;
+            const decoded = jwtDecode(token);
+            const currentTime = Date.now() / 1000;
+            console.log(decoded.exp - currentTime);
+            if (decoded.exp < currentTime) {
+                console.log("Expired token");
+                // Token has expired
+                localStorage.removeItem("bearerToken");
+                setAuthState({
+                    isAuthenticated: false,
+                    user: null,
+                    token: null,
+                });
+                
+                alert("Your session has expired. Please log in again.");
+                logout();
+            } else {
+            setAuthState({
+                isAuthenticated: true,
+                user: user,
+                token: token,
+            });
+            }
+        }
+    }, []);
+
+    return authState;
+}
+

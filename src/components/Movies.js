@@ -6,9 +6,11 @@ import { agNumberColumnFilter } from "ag-grid-react"
 import { useMovieSearch } from "../api/moviesAPI"
 import React, { useState } from "react";
 import SearchBar from "./SearchBar";
+import { useParams } from "react-router-dom";
 
 export default function Movies() {
-    const { loading, movies, error } = useMovieSearch();
+    const searchTerm = useParams();
+    const { loading, movies, error } = useMovieSearch(searchTerm.search);
     if (error) {
         console.log(error)
         return(
@@ -31,7 +33,6 @@ export default function Movies() {
     ]
     return loading ? (
         <React.Fragment>
-            <SearchBar />
             <LoadingComponent>
                 <h1 className="loading">Loading...</h1>
             </LoadingComponent>
@@ -39,7 +40,7 @@ export default function Movies() {
         ) : 
         (
         <React.Fragment>
-            <SearchBar />
+
             < MoviesComponent>
                 
                 <h1>MOVIES</h1>

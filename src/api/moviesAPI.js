@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
-const API_KEY = "";
+
 const API_URL = "http://sefdb02.qut.edu.au:3000"
-const QUERY = "";
-export function useMovieSearch() {
+
+export function useMovieSearch(title="") {
     const [loading, setLoading] = useState(true);
     const [movies, setMovieResults] = useState([]);
     const [error, setError] = useState(null);
     useEffect(
         // the effect
         () => {
-        getMoviesByQuery().then((movies) => {
+        getMoviesByQuery(title).then((movies) => {
             setMovieResults(movies);
             }).catch((e) => {
                 setError(e)
             }).finally(() => {
                 setLoading(false);
             } );
+        console.log(title)
         },
-        [],
+        [title],
         );
     return {
         loading,
@@ -25,8 +26,8 @@ export function useMovieSearch() {
         error: error,
     }
 }
-function getMoviesByQuery() {
-    const url = API_URL + `/movies/search`;
+function getMoviesByQuery(title) {
+    const url = API_URL + `/movies/search?title=${title}`;
     return fetch(url)
     .then((res) => res.json())
     .then((res) => res.data)
