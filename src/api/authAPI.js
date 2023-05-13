@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
+import { AuthContext } from '../provider/AuthProvider';
 const API_URL = "http://sefdb02.qut.edu.au:3000/user"
+
+
 
 export function useRegistration() {
     const [isCreated, setCreated] = useState(false);
@@ -47,10 +50,12 @@ export function useRegistration() {
     return { register, message: message, isCreated: isCreated, message: message,  loading: isLoading };
 }
 export function useLogin() {
+    const { token, setToken } = useContext(AuthContext);
     const loginURL = API_URL + "/login";
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [message, setMesaage] = useState('');
     const navigate = useNavigate();
+    
 
     const login = async (email, password) => { 
         try{
@@ -75,8 +80,6 @@ export function useLogin() {
                     setMesaage("Logged in successfully");
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
-                    console.log(res)
-                    console.log(jwtDecode(localStorage.getItem("bearerToken")));
                     navigate('/');
                   })
             }
@@ -86,11 +89,20 @@ export function useLogin() {
 
     }
 
+    
+    return ( { login, isLoggedIn: isLoggedIn, message: message})
+
+}
+
+export function useLogout() {
+    const logoutURL = API_URL + "/logout";
+    const [ isLoggedOut, setIsLoggedOut ] = useState(null)
+    const navigate = useNavigate();
     const logout = () => {
-        const logoutURL = API_URL + "/logout";
+        
         const token = localStorage.getItem("refreshToken")
         if (token){
-            fetch(loginURL, {
+            fetch(logoutURL, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
@@ -99,6 +111,7 @@ export function useLogin() {
             });
             localStorage.removeItem("bearerToken");
             localStorage.removeItem("refreshToken");
+            setIsLoggedOut(true);
             navigate('/');
         }else{
             console.log("User not logged in")
@@ -106,12 +119,12 @@ export function useLogin() {
         
         
     }
-    return ( { logout, login, isLoggedIn: isLoggedIn, message: message})
-
+    return ( {logout, isLoggedOut})
 }
 
 export function useAuth () {
-    const { logout, isLoggedin, message } = useLogin();
+    
+    const { logout, isLoggedOut } = useLogout();
     const [authState, setAuthState] = useState({
         isAuthenticated: false,
         user: null,
@@ -120,11 +133,13 @@ export function useAuth () {
 
     useEffect(() => {
         const token = localStorage.getItem("bearerToken");
+        console.log(token)
+        
         if (token) {
-            const user = jwtDecode(localStorage.getItem("bearerToken")).email;
+            const user = jwtDecode(token).email;
             const decoded = jwtDecode(token);
             const currentTime = Date.now() / 1000;
-            console.log(decoded.exp - currentTime);
+
             if (decoded.exp < currentTime) {
                 console.log("Expired token");
                 // Token has expired

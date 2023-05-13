@@ -6,11 +6,12 @@ import { agNumberColumnFilter } from "ag-grid-react"
 import { useMovieSearch } from "../api/moviesAPI"
 import React, { useState } from "react";
 import SearchBar from "./SearchBar";
-import { useParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export default function Movies() {
-    const searchTerm = useParams();
-    const { loading, movies, error } = useMovieSearch(searchTerm.search);
+    const [ searchTerm ] = useSearchParams();
+    const navigate = useNavigate();
+    const { loading, movies, error } = useMovieSearch(searchTerm.get("title")!==null ? searchTerm.get("title") : "");
     if (error) {
         console.log(error)
         return(
@@ -18,17 +19,19 @@ export default function Movies() {
         )
     }
     const columns = [
-        { headerName: "", field: "image"},
-        { headerName: "Title", field: "title", filter: 'agTextColumnFilter'},
+        { headerName: "Title", field: "title", filter: 'agTextColumnFilter', minWidth: 300, flex: 1},
         { headerName: "Year", field: "year", filter: 'agNumberColumnFilter'},
-        { headerName: "imdbID", field: "imdbID"},
+        { headerName: "imdbID", field: "imdbID", hide: "true" },
         { headerName: "Tomatoes Rating", field: "rottenTomatoesRating", filter: 'agNumberColumnFilter'},
         { headerName: "Metacritic Rating", field: "metacriticRating", filter: 'agNumberColumnFilter'},
         { headerName: "Classification", field: "classification", filter: 'agTextColumnFilter'},
     ]
     const defaultColDef = [
         {
-            sortable: true
+            sortable: true,
+            minWidth: 100,
+            resizable: true,
+            autoWidth: true,
         }
     ]
     return loading ? (
@@ -44,7 +47,6 @@ export default function Movies() {
             < MoviesComponent>
                 
                 <h1>MOVIES</h1>
-                <div className=""></div>
                 <div className="ag-theme-alpine">
                 <AgGridReact 
                 columnDefs={columns}
@@ -53,6 +55,7 @@ export default function Movies() {
                 defaultColDef={defaultColDef}
                 paginationAutoPageSize={true}
                 pagination={true}
+                onRowClicked={(row) => navigate(`/movie/${row.data.imdbID}`)}
 
                 />
                 </div>
@@ -72,6 +75,7 @@ const MoviesComponent = styled.div`
     color: var(--color-white);
     background: var(--color-brighter-black);
     .ag-theme-alpine {
+        padding: 10px;
         width: 100%;
         height: 400px;
         --ag-foreground-color: var(--color-brighter-black);

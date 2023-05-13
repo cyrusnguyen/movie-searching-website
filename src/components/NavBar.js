@@ -12,13 +12,12 @@ import {
 import logo from '../assets/logo.png';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom'
-import { useLogin } from '../api/authAPI';
-import { useAuth } from '../api/authAPI';
+import { useLogout, useAuth } from '../api/authAPI';
 
 
 export default function NavBar() {
   const [collapsed, setCollapsed] = useState(true);
-  const { logout, isLoggedin, message } = useLogin();
+  const { logout, isLoggedOut } = useLogout();
   const { user, isAuthenticated } = useAuth();
   const auth = localStorage.getItem('bearerToken')
   const navigate = useNavigate();

@@ -11,7 +11,7 @@ export default function SearchBar(){
     
     const handleSubmit = (e) => {
         e.preventDefault();
-        navigate(`/movies/${searchTerm}`);
+        navigate(`/movies?title=${searchTerm}`);
     }
 
     return (

@@ -15,8 +15,7 @@ export function useMovieSearch(title="") {
                 setError(e)
             }).finally(() => {
                 setLoading(false);
-            } );
-        console.log(title)
+            } );    
         },
         [title],
         );
@@ -24,6 +23,34 @@ export function useMovieSearch(title="") {
         loading,
         movies: movies,
         error: error,
+    }
+}
+export function useMovieDetail(id){
+    const [ loading, setLoading ] = useState(true);
+    const [ movieDetails, setMovieDetails ] = useState(null);
+    const [ error, setError ] = useState(null);
+    const [ moviePrincipals, setMoviePrincipals ] = useState(null)
+
+    const url = API_URL + `/movies/data/${id}`;
+    useEffect(
+        // the effect
+        () => {
+            fetch(url).then((response) => response.json())
+            .then((responseData) => {
+                setMovieDetails(responseData)
+            })
+            .catch((e) => {
+                setError(e)
+            }).finally(() => {
+                setLoading(false);
+            } );
+        },
+        [],
+        );
+    return {
+        loading: loading,
+        movieDetails: movieDetails,
+        error: error
     }
 }
 function getMoviesByQuery(title) {
@@ -40,4 +67,12 @@ function getMoviesByQuery(title) {
         metacriticRating: movie.metacriticRating,
         classification: movie.classification
     })));
+}
+function getMovieDetails(id){
+    const url = API_URL + `/movies/data/${id}`;
+    return fetch(url)
+    .then((res) => 
+    {
+        return res.json();
+    });
 }
