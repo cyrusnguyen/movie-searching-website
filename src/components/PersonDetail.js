@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, Link } from "react-router-dom"
 import styled from "styled-components";
 import { usePersonSearch } from "../api/peopleAPI";
 import React, { useEffect, useState } from "react"
@@ -70,7 +70,15 @@ export default function PersonDetail() {
     },[personDetails])
     
     return (
-        
+        error ? (
+            <React.Fragment>
+                <ErrorComponent>
+                    <h1>{error}</h1>
+                    <h2>Please <Link to="/login">click here</Link> to log in</h2>
+                </ErrorComponent>
+            </React.Fragment>
+        ) : 
+        (
         <PersonDetailComponent>
             { personDetails &&
             <React.Fragment>
@@ -105,9 +113,15 @@ export default function PersonDetail() {
             </React.Fragment>
             }
         </PersonDetailComponent>
+        )
+            
+        
+        
+        
         
     )
 }
+
 
 const PersonDetailComponent = styled.div`
     color: var(--color-white);
@@ -129,7 +143,13 @@ const PersonDetailComponent = styled.div`
     }
     
 `;
-
+const ErrorComponent = styled.div`
+    color: var(--color-white);
+    text-align: center;
+    a {
+        text-decoration: none;
+    }
+`
 function generateRGBAColor(alphaValue, numberOfColors) {
     const listColors = [];
     

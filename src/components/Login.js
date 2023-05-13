@@ -12,7 +12,7 @@ export default function Login() {
     const handleSubmit = (event) => {
         event.preventDefault();
         login(email, password);
-      };
+    };
     return(
         <React.Fragment>
             <LoginComponent>

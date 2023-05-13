@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 
 const API_URL = "http://sefdb02.qut.edu.au:3000"
 
 export function usePersonSearch(id="") {
+    const { authState, setAuthState } = useContext(AuthContext);
     
     const [loading, setLoading] = useState(true);
     const [personDetails, setPersonDetails] = useState(null);
@@ -10,12 +12,17 @@ export function usePersonSearch(id="") {
     useEffect(
         // the effect
         () => {
-        getPersonDetail(id).then((personDetails) => (setPersonDetails(personDetails)))
-        .catch((e) => {
+        if(authState.isAuthenticated){
+            getPersonDetail(id).then((personDetails) => (setPersonDetails(personDetails)))
+            .catch((e) => {
                 setError(e)
             }).finally(() => {
                 setLoading(false);
             } );    
+        }else{
+            setError("You are not authenticated or your session has expired!")
+        }
+        
         },
         [id],
         );

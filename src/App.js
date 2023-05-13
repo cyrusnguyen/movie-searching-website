@@ -1,4 +1,4 @@
-import { AuthContext } from './provider/AuthProvider';
+import { AuthContext, AuthContextProvider } from './contexts/AuthContext';
 import React, { useState, createContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from './components/NavBar';
@@ -19,19 +19,12 @@ import Register from './components/Register';
 
 
 function App() {
-  const [token, setToken] = useState(null);
-
-
   return (
     <div className="App">
-      <AuthContext.Provider value={{ token, setToken }}>
-
+      <AuthContextProvider>
         <NavBar />
         <SearchBar />
 
-        
-
-      
         <Routes>
               <Route path="/" element={ <Home/> } />
               <Route path="/movies" element={ <Movies/> }/>
@@ -42,7 +35,7 @@ function App() {
               <Route path="*" element={ <NotFound /> } />
         </Routes>
         <Footer />
-      </AuthContext.Provider>
+      </AuthContextProvider>
 
     </div>
 

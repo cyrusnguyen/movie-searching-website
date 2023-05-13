@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
   Collapse,
@@ -12,20 +12,26 @@ import {
 import logo from '../assets/logo.png';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom'
-import { useLogout, useAuth } from '../api/authAPI';
+import { useLogout } from '../api/authAPI';
+import { AuthContext } from '../contexts/AuthContext';
 
 
 export default function NavBar() {
-  const [collapsed, setCollapsed] = useState(true);
-  const { logout, isLoggedOut } = useLogout();
-  const { user, isAuthenticated } = useAuth();
-  const auth = localStorage.getItem('bearerToken')
+  const [ collapsed, setCollapsed ] = useState(true);
+  const { logout } = useLogout();
+  const { authState, setAuthState } = useContext(AuthContext);
   const navigate = useNavigate();
   
 
   const handleSignout = () => {
     logout();
     navigate('/login');
+    setAuthState({
+      isAuthenticated: false,
+      user: null,
+      bearerToken: null,
+      refreshToken: null
+    })
   }
 
 
@@ -47,20 +53,19 @@ export default function NavBar() {
               <NavBarLink to="/movies">Movies</NavBarLink>
             </NavItem>
             
-            {auth ? 
-            <NavItem>
+            {authState.isAuthenticated ? 
+            <React.Fragment><NavItem>
               <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
-            </NavItem> :
+            </NavItem> 
+            <NavItem className="ms-auto ">
+              Hello, {authState.user}
+            </NavItem>
+            </React.Fragment> :
             <><NavItem>
                 <NavBarLink to="/register">Register</NavBarLink>
               </NavItem><NavItem>
                   <NavBarLink to="/login">Login</NavBarLink>
                 </NavItem></>
-            }
-            {auth &&
-            <NavItem className="ms-auto ">
-              Hello, {user}
-            </NavItem>
             }
           </Nav>
         </Collapse>

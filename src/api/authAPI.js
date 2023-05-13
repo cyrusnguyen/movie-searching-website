@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
-import { AuthContext } from '../provider/AuthProvider';
+import { AuthContext } from '../contexts/AuthContext';
 const API_URL = "http://sefdb02.qut.edu.au:3000/user"
 
 
@@ -29,6 +29,8 @@ export function useRegistration() {
                 }
                 else if (response.status === 429){
                     setMesaage("Too many requests, please try again later.");
+                }else{
+                    setMesaage("There was an error");
                 }
                 setIsLoading(false);
                 setCreated(false);
@@ -50,10 +52,10 @@ export function useRegistration() {
     return { register, message: message, isCreated: isCreated, message: message,  loading: isLoading };
 }
 export function useLogin() {
-    const { token, setToken } = useContext(AuthContext);
+    const { authState, setAuthState } = useContext(AuthContext);
     const loginURL = API_URL + "/login";
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [message, setMesaage] = useState('');
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
     
 
@@ -66,18 +68,25 @@ export function useLogin() {
             });
             if (!response.ok){
                 if(response.status === 401) {
-                    setMesaage("Incorrect email or password");
+                    setMessage("Incorrect email or password");
                 }else if(response.status === 400){
-                    setMesaage("Request body incomplete, both email and password are required");
+                    setMessage("Request body incomplete, both email and password are required");
                 }else if(response.status === 429){
-                    setMesaage("Too many requests, please try again later.");
+                    setMessage("Too many requests, please try again later.");
                 }
                 setIsLoggedIn(false);
 
             } else{
                 response.json().then((res) => {
                     setIsLoggedIn(true);
-                    setMesaage("Logged in successfully");
+                    setMessage("Logged in successfully");
+                    setAuthState({
+                        isAuthenticated: true,
+                        user: email,
+                        bearerToken: res.bearerToken.token,
+                        refreshToken: res.refreshToken.token
+
+                    })
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
                     navigate('/');
@@ -95,73 +104,107 @@ export function useLogin() {
 }
 
 export function useLogout() {
+    const { authState, setAuthState } = useContext(AuthContext);
     const logoutURL = API_URL + "/logout";
     const [ isLoggedOut, setIsLoggedOut ] = useState(null)
+    const [ message, setMessage ] = useState("");
     const navigate = useNavigate();
-    const logout = () => {
+    const logout = async () => {
         
         const token = localStorage.getItem("refreshToken")
         if (token){
-            fetch(logoutURL, {
+            const response = await fetch(logoutURL, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     refreshToken: token
                 })
             });
-            localStorage.removeItem("bearerToken");
-            localStorage.removeItem("refreshToken");
-            setIsLoggedOut(true);
-            navigate('/');
+            if(!response.ok){
+                if(response.status === 401) {
+                    setMessage("JWT token has expired");
+                }else if(response.status === 400){
+                    setMessage("Request body incomplete, refresh token required");
+                }else if(response.status === 429){
+                    setMessage("Too many requests, please try again later.");
+                }else{
+                    setMessage("There was an error");
+                }
+                setIsLoggedOut(false);
+            }else{
+                localStorage.removeItem("bearerToken");
+                localStorage.removeItem("refreshToken");
+                setIsLoggedOut(true);
+                setAuthState({
+                    isAuthenticated: false,
+                    user: null,
+                    bearerToken: null,
+                    refreshToken: null
+                });
+                setMessage("Logged out successfully")
+                navigate('/');
+            }
+            
         }else{
-            console.log("User not logged in")
+            console.log("User not logged in");
+            setIsLoggedOut(false);
         }
         
         
     }
-    return ( {logout, isLoggedOut})
+    return ( {logout, isLoggedOut: isLoggedOut, message: message})
 }
 
-export function useAuth () {
+
+export function useRefreshToken() {
+    const { authState, setAuthState } = useContext(AuthContext);
+    const refreshURL = API_URL + "/refresh"
+    const [ newBearertoken, setNewBearerToken ] = useState("");
+    const [ message, setMessage ] = useState("");
+    const [ isRefreshed, setIsRefreshed ] = useState(false);
+    const refreshToken = localStorage.getItem("refreshToken")
+    const bearerToken = localStorage.getItem("bearerToken")
+    const navigate = useNavigate();
     
-    const { logout, isLoggedOut } = useLogout();
-    const [authState, setAuthState] = useState({
-        isAuthenticated: false,
-        user: null,
-        token: null,
-    });
-
-    useEffect(() => {
-        const token = localStorage.getItem("bearerToken");
-        console.log(token)
-        
-        if (token) {
-            const user = jwtDecode(token).email;
-            const decoded = jwtDecode(token);
-            const currentTime = Date.now() / 1000;
-
-            if (decoded.exp < currentTime) {
-                console.log("Expired token");
-                // Token has expired
-                localStorage.removeItem("bearerToken");
-                setAuthState({
-                    isAuthenticated: false,
-                    user: null,
-                    token: null,
-                });
-                
-                alert("Your session has expired. Please log in again.");
-                logout();
-            } else {
-            setAuthState({
-                isAuthenticated: true,
-                user: user,
-                token: token,
-            });
+    const refresh = async () => {
+        try{
+        const response = await fetch(refreshURL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                refreshToken: refreshToken
+            })
+        }); 
+        if (!response.ok){
+            if(response.status === 401) {
+                setMessage("JWT token has expired");
+            }else if(response.status === 400){
+                setMessage("Request body incomplete, refresh token required");
+            }else if(response.status === 429){
+                setMessage("Too many requests, please try again later.");
+            }else{
+                setMessage("There was an error");
             }
+            setIsRefreshed(false)
+
+        } else{
+            response.json().then((res) => {
+                setMessage("Token successfully invalidated");
+                setNewBearerToken(res.bearerToken.token);
+                const email = authState.user;
+                setAuthState({
+                    isAuthenticated: true,
+                    user: email,
+                    bearerToken: res.bearerToken.token,
+                    refreshToken: res.refreshToken.token
+                });
+                localStorage.setItem("bearerToken", res.bearerToken.token);
+                setIsRefreshed(true);
+                navigate('/');
+              })
         }
-    }, []);
-
-    return authState;
+    }catch (error) {
+        throw new Error(error.message)
+    }}
+    return ( { refresh, newBearertoken: newBearertoken, message: message, isRefreshed: isRefreshed } )
 }
-
