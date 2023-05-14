@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import jwtDecode from "jwt-decode";
-import { useLogout, useRefreshToken } from '../api/authAPI';
+import { useRefreshToken } from '../api/authAPI';
 import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext({
@@ -11,7 +11,6 @@ export const AuthContext = createContext({
 })
 
 export function AuthContextProvider ( {children} ){
-    const { logout } = useLogout();
     const { refresh, newBearertoken, message, isRefreshed } = useRefreshToken();
     const navigate = useNavigate();
     const [ authState, setAuthState ] = useState({
@@ -23,11 +22,8 @@ export function AuthContextProvider ( {children} ){
 
     });
 
-    useEffect(() => {
-        checkAuthStatus();
-    }, []);
-
     const checkAuthStatus = () => {
+
         const bearerToken = localStorage.getItem("bearerToken");
         const refreshToken = localStorage.getItem("refreshToken");
         if(bearerToken){
@@ -40,8 +36,8 @@ export function AuthContextProvider ( {children} ){
                 if (refreshToken) {
                     const decodedRefresh = jwtDecode(refreshToken);
                     // If refreshToken expired, logout
+
                     if (decodedRefresh.exp < currentTime) {
-                        localStorage.removeItem("bearerToken");
                         localStorage.setItem("isAuthenticated", false);
                         setAuthState({
                             isAuthenticated: false,
@@ -51,28 +47,12 @@ export function AuthContextProvider ( {children} ){
                         });
                         
                         alert("Your session has expired. Please log in again.");
-                        logout();
+                        navigate("/login")
                     }else{
+
                         // If refreshToken still valid, refresh bearerToken
                         refresh().then(() => {
-                            if( isRefreshed ) {
-                                console.log(message);
-                                localStorage.setItem("bearerToken", newBearertoken);
-                                localStorage.setItem("isAuthenticated", true);
-                                setAuthState({
-                                    isAuthenticated: true,
-                                    user: user,
-                                    bearerToken: newBearertoken,
-                                    refreshToken: refreshToken,
-                                });
-                                
-                            }
-                            else{
-                                localStorage.setItem("isAuthenticated", false);
-                                alert("There was an error refreshing your session. Please log in again.");
-                                navigate("/login");
-                            }
-                            
+                            localStorage.setItem("isAuthenticated", true);
                         });
                     }
                 
@@ -98,6 +78,17 @@ export function AuthContextProvider ( {children} ){
                     refreshToken: refreshToken,
                 });
             }
+        }else{
+            localStorage.setItem("isAuthenticated", false);
+            setAuthState({
+                isAuthenticated: false,
+                user: null,
+                bearerToken: null,
+                refreshToken: null,
+            });
+            
+            alert("Your session has expired or you're not logged in.");
+            navigate("/login")
         }
       };
 

@@ -88,6 +88,7 @@ export function useLogin() {
                         refreshToken: res.refreshToken.token
                     })
                     localStorage.setItem("isAuthenticated", true);
+                    localStorage.setItem("user", email);
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
                     navigate('/');
@@ -121,6 +122,7 @@ export function useLogout() {
                     refreshToken: token
                 })
             });
+            console.log(response);
             if(!response.ok){
                 if(response.status === 401) {
                     setMessage("JWT token has expired");
@@ -132,9 +134,20 @@ export function useLogout() {
                     setMessage("There was an error");
                 }
                 setIsLoggedOut(false);
+                localStorage.removeItem("bearerToken");
+                localStorage.removeItem("refreshToken");
+                localStorage.removeItem("user");
+                localStorage.setItem("isAuthenticated", false);
+                setAuthState({
+                    isAuthenticated: false,
+                    user: null,
+                    bearerToken: null,
+                    refreshToken: null
+                });
             }else{
                 localStorage.removeItem("bearerToken");
                 localStorage.removeItem("refreshToken");
+                localStorage.removeItem("user");
                 localStorage.setItem("isAuthenticated", false);
                 setIsLoggedOut(true);
                 setAuthState({
@@ -166,10 +179,13 @@ export function useRefreshToken() {
     const [ isRefreshed, setIsRefreshed ] = useState(false);
     const refreshToken = localStorage.getItem("refreshToken")
     const bearerToken = localStorage.getItem("bearerToken")
+    const email = localStorage.getItem("user")
+
     const navigate = useNavigate();
     
     const refresh = async () => {
         try{
+        console.log(refreshToken)
         const response = await fetch(refreshURL, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -189,11 +205,12 @@ export function useRefreshToken() {
             }
             setIsRefreshed(false)
 
+            
+
         } else{
             response.json().then((res) => {
                 setMessage("Token successfully invalidated");
                 setNewBearerToken(res.bearerToken.token);
-                const email = authState.user;
                 setAuthState({
                     isAuthenticated: true,
                     user: email,
@@ -201,12 +218,13 @@ export function useRefreshToken() {
                     refreshToken: res.refreshToken.token
                 });
                 localStorage.setItem("bearerToken", res.bearerToken.token);
+                localStorage.setItem("refreshToken", res.refreshToken.token);
                 setIsRefreshed(true);
-                navigate('/');
+                console.log("Token successfully updated, new token:", res.bearerToken.token) 
               })
-        }
-    }catch (error) {
-        throw new Error(error.message)
-    }}
+            }
+        }catch (error) {
+            throw new Error(error.message)
+        }}
     return ( { refresh, newBearertoken: newBearertoken, message: message, isRefreshed: isRefreshed } )
 }

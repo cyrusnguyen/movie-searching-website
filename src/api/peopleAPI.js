@@ -1,11 +1,12 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
+import { useRefreshToken } from './authAPI';
 
 const API_URL = "http://sefdb02.qut.edu.au:3000"
 
 export function usePersonSearch(id="") {
     const { checkAuthStatus, authState } = useContext(AuthContext);
-    
+    const { refresh, newBearertoken, message, isRefreshed } = useRefreshToken();
     const [loading, setLoading] = useState(true);
     const [personDetails, setPersonDetails] = useState(null);
     const [error, setError] = useState(null);
@@ -13,10 +14,11 @@ export function usePersonSearch(id="") {
         // the effect
         () => {
         checkAuthStatus();
-            
-        if(authState.isAuthenticated){
+        console.log(localStorage.getItem("refreshToken"));
+        if(authState.isAuthenticated === true || authState.isAuthenticated === "true"){
             getPersonDetail(id).then((personDetails) => {
                 setPersonDetails(personDetails)
+
             })
             .catch((e) => {
                 setError(e)
@@ -24,7 +26,6 @@ export function usePersonSearch(id="") {
                 setLoading(false);
             } );    
         }else{
-            console.log(authState)
             setError("You are not authenticated or your session has expired!")
         }
         
@@ -50,6 +51,5 @@ function getPersonDetail(id) {
         }
       })
         .then(response => response.json())
-        .then(data => data)
    
 }

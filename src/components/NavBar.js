@@ -51,7 +51,7 @@ export default function NavBar() {
               <NavBarLink to="/movies">Movies</NavBarLink>
             </NavItem>
             
-            {authState.isAuthenticated === true ? 
+            {authState.isAuthenticated === true || authState.isAuthenticated === "true"? 
             <React.Fragment><NavItem>
               <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
             </NavItem> 

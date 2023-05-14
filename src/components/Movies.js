@@ -69,26 +69,26 @@ export default function Movies() {
     }
 
     
-      const renderPaginationItems = () => {
+    const renderPaginationItems = () => {
         const items = [];
         const visiblePages = 4;
-    
+
         const visibleMiddlePage = Math.floor(visiblePages / 2);
         const startPage = Math.max(1, currentPage - visibleMiddlePage);
         const endPage = Math.min(pagination.lastPage, startPage + visiblePages - 1);
-    
+
         for (let i = startPage; i <= endPage; i++) {
-          items.push(
-          <PaginationItem key={i} active={i === currentPage}>
+            items.push(
+            <PaginationItem key={i} active={i === currentPage}>
             <PaginationLink onClick={() => handlePageChange(i)}>
-              {i}
+                {i}
             </PaginationLink>
-          </PaginationItem>
-          );
+            </PaginationItem>
+            );
         }
-    
-        return items;
-      };
+
+    return items;
+    };
     
     
 

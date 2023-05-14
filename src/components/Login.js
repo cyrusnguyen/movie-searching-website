@@ -48,7 +48,7 @@ export default function Login() {
                     <Button className="btnLogin" color="primary" type="submit">Login</Button>
                     <p>Not have an account? <Link className="registerLink" to="/register">Register here</Link></p>
                     </div>
-                    {message && <div>{message}</div>}
+                    {message && <div className="loginMessage">{message}</div>}
                 </Form>
             </div>
             </LoginComponent>
@@ -125,6 +125,10 @@ const LoginComponent = styled.div`
                 
             }
         }
+    }
+    .loginMessage {
+        text-align: center;
+        color: red;
     }
     
 `;
