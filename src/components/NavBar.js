@@ -21,8 +21,6 @@ export default function NavBar() {
   const { logout } = useLogout();
   const { authState, setAuthState } = useContext(AuthContext);
   const navigate = useNavigate();
-  
-
   const handleSignout = () => {
     logout();
     navigate('/login');
@@ -53,7 +51,7 @@ export default function NavBar() {
               <NavBarLink to="/movies">Movies</NavBarLink>
             </NavItem>
             
-            {authState.isAuthenticated ? 
+            {authState.isAuthenticated === true ? 
             <React.Fragment><NavItem>
               <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
             </NavItem> 

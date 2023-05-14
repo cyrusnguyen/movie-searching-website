@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import jwtDecode from "jwt-decode";
 import { useLogout, useRefreshToken } from '../api/authAPI';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext({
     isAuthenticated: false,
@@ -12,6 +13,7 @@ export const AuthContext = createContext({
 export function AuthContextProvider ( {children} ){
     const { logout } = useLogout();
     const { refresh, newBearertoken, message, isRefreshed } = useRefreshToken();
+    const navigate = useNavigate();
     const [ authState, setAuthState ] = useState({
 
         isAuthenticated: localStorage.getItem('isAuthenticated'),
@@ -68,15 +70,13 @@ export function AuthContextProvider ( {children} ){
                             else{
                                 localStorage.setItem("isAuthenticated", false);
                                 alert("There was an error refreshing your session. Please log in again.");
-                                logout();
+                                navigate("/login");
                             }
                             
                         });
                     }
                 
                 }else{
-                    localStorage.removeItem("bearerToken");
-                    localStorage.removeItem("refreshToken");
                     localStorage.setItem("isAuthenticated", false);
                     setAuthState({
                         isAuthenticated: false,
@@ -85,8 +85,8 @@ export function AuthContextProvider ( {children} ){
                         refreshToken: null,
                     });
                     
-                    alert("There was an error with your session. Please login again");
-                    logout();
+                    console("You are not logged in. Please login again");
+                    navigate("/login")
                 }
             // If bearerToken still valid, set AuthState to true
             }else{
