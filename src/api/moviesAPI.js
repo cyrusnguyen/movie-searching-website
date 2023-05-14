@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 
 const API_URL = "http://sefdb02.qut.edu.au:3000"
 
-export function useMovieSearch(title="") {
+export function useMovieSearch(query) {
     const [loading, setLoading] = useState(true);
     const [movies, setMovieResults] = useState([]);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState(null);
     useEffect(
         // the effect
         () => {
-        getMoviesByQuery(title).then((movies) => {
+        getPaginationByQuery(query).then((pagination) => setPagination(pagination));
+        getMoviesByQuery(query).then((movies) => {
             setMovieResults(movies);
             }).catch((e) => {
                 setError(e)
@@ -17,12 +19,13 @@ export function useMovieSearch(title="") {
                 setLoading(false);
             } );    
         },
-        [title],
+        [query],
         );
     return {
         loading,
         movies: movies,
         error: error,
+        pagination: pagination
     }
 }
 export function useMovieDetail(id){
@@ -53,13 +56,12 @@ export function useMovieDetail(id){
         error: error
     }
 }
-function getMoviesByQuery(title) {
-    const url = API_URL + `/movies/search?title=${title}`;
+function getMoviesByQuery(query) {
+    const url = API_URL + `/movies/search${query}`;
     return fetch(url)
     .then((res) => res.json())
-    .then((res) => res.data)
-    .then((movies) =>
-    movies.map((movie) => ({
+    .then((movies) => 
+    movies.data.map((movie) => ({
         title: movie.title,
         year: movie.year,
         imdbID: movie.imdbID,
@@ -67,6 +69,12 @@ function getMoviesByQuery(title) {
         metacriticRating: movie.metacriticRating,
         classification: movie.classification
     })));
+}
+function getPaginationByQuery(query) {
+    const url = API_URL + `/movies/search${query}`;
+    return fetch(url)
+    .then((res) => res.json())
+    .then((movies) => movies.pagination);
 }
 function getMovieDetails(id){
     const url = API_URL + `/movies/data/${id}`;
