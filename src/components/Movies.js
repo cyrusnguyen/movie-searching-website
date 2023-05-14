@@ -21,7 +21,6 @@ export default function Movies() {
     // Dropdown definitions
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: currentYear - 1990 + 1 }, (_, i) => 1990 + i);
-    console.log(years);
     const [ dropdownOpen, setDropdownOpen ] = useState(false);
     const [ selectedYear, setSelectedYear ] = useState("Select Year")
     
@@ -95,7 +94,6 @@ export default function Movies() {
 
     useEffect(() => {
         if(pagination){setLocaleText(`Showing ${pagination.from+1} to ${pagination.to} of ${pagination.total} results`)}
-        console.log(pagination)
     },[pagination])
 
     useEffect(() => {

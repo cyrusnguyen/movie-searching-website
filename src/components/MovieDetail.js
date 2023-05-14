@@ -1,14 +1,16 @@
 import { useNavigate, useParams } from "react-router-dom"
-import React, { useEffect, useState, useRef, useCallback } from "react"
+import React, { useContext } from "react"
 import { useMovieDetail } from "../api/moviesAPI";
 import styled from "styled-components";
 import { AgGridReact } from "ag-grid-react";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function MovieDetail (){
     const { id } = useParams();
     const navigate = useNavigate();
+    const { authState } = useContext(AuthContext);
 
 
     
@@ -114,18 +116,19 @@ const MovieDetailComponent = styled.div`
             overflow: auto;
             padding: 10px 20px;
             position: flex;
+            display: flex;
             
             
 
             .movieInfoLeft {
-                float: left;
+
                 width: 70%;
             }
 
             .movieInfoRight {
-                float: right;
+
                 .ratingSection {
-                    padding-top: 20px;
+                    padding-left 10px;
                     align-self: flex-end;
         
                 }
@@ -140,9 +143,9 @@ const MovieDetailComponent = styled.div`
 
         }
 
-        @media only screen and (max-width: 1200px) {
+        @media only screen and (max-width: 800px) {
             .movieInfo {
-                display: flex;
+                display: block;
             }
             .movieInfoLeft {
                 float: none;

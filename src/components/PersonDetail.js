@@ -50,7 +50,6 @@ export default function PersonDetail() {
 
         if(personDetails){
             personDetails.roles.map((personRoles) => {
-
                 newRatingCounts[Math.floor(personRoles.imdbRating)] += 1;
             })
         };

@@ -75,6 +75,7 @@ export function useLogin() {
                     setMessage("Too many requests, please try again later.");
                 }
                 setIsLoggedIn(false);
+                localStorage.setItem("isAuthenticated", false);
 
             } else{
                 response.json().then((res) => {
@@ -85,8 +86,8 @@ export function useLogin() {
                         user: email,
                         bearerToken: res.bearerToken.token,
                         refreshToken: res.refreshToken.token
-
                     })
+                    localStorage.setItem("isAuthenticated", true);
                     localStorage.setItem("bearerToken", res.bearerToken.token);
                     localStorage.setItem("refreshToken", res.refreshToken.token);
                     navigate('/');
@@ -134,6 +135,7 @@ export function useLogout() {
             }else{
                 localStorage.removeItem("bearerToken");
                 localStorage.removeItem("refreshToken");
+                localStorage.setItem("isAuthenticated", false);
                 setIsLoggedOut(true);
                 setAuthState({
                     isAuthenticated: false,
