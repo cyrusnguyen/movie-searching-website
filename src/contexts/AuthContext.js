@@ -52,7 +52,7 @@ export function AuthContextProvider ( {children} ){
 
                         // If refreshToken still valid, refresh bearerToken
                         refresh().then(() => {
-                            localStorage.setItem("isAuthenticated", true);
+                            console.log(message, "isRefreshed", isRefreshed, newBearertoken)
                         });
                     }
                 

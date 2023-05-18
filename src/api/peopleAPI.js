@@ -6,7 +6,6 @@ const API_URL = "http://sefdb02.qut.edu.au:3000"
 
 export function usePersonSearch(id="") {
     const { checkAuthStatus, authState } = useContext(AuthContext);
-    const { refresh, newBearertoken, message, isRefreshed } = useRefreshToken();
     const [loading, setLoading] = useState(true);
     const [personDetails, setPersonDetails] = useState(null);
     const [error, setError] = useState(null);
@@ -16,6 +15,7 @@ export function usePersonSearch(id="") {
         checkAuthStatus();
         console.log(localStorage.getItem("refreshToken"));
         if(authState.isAuthenticated === true || authState.isAuthenticated === "true"){
+            console.log(authState.isAuthenticated);
             getPersonDetail(id).then((personDetails) => {
                 setPersonDetails(personDetails)
 
@@ -30,7 +30,7 @@ export function usePersonSearch(id="") {
         }
         
         },
-        [id],
+        [],
         );
     return {
         loading,

@@ -122,7 +122,6 @@ export function useLogout() {
                     refreshToken: token
                 })
             });
-            console.log(response);
             if(!response.ok){
                 if(response.status === 401) {
                     setMessage("JWT token has expired");
@@ -134,31 +133,21 @@ export function useLogout() {
                     setMessage("There was an error");
                 }
                 setIsLoggedOut(false);
-                localStorage.removeItem("bearerToken");
-                localStorage.removeItem("refreshToken");
-                localStorage.removeItem("user");
-                localStorage.setItem("isAuthenticated", false);
-                setAuthState({
-                    isAuthenticated: false,
-                    user: null,
-                    bearerToken: null,
-                    refreshToken: null
-                });
+                
             }else{
-                localStorage.removeItem("bearerToken");
-                localStorage.removeItem("refreshToken");
-                localStorage.removeItem("user");
-                localStorage.setItem("isAuthenticated", false);
                 setIsLoggedOut(true);
-                setAuthState({
-                    isAuthenticated: false,
-                    user: null,
-                    bearerToken: null,
-                    refreshToken: null
-                });
                 setMessage("Logged out successfully")
-                navigate('/');
             }
+            localStorage.removeItem("bearerToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+            localStorage.setItem("isAuthenticated", false);
+            setAuthState({
+                isAuthenticated: false,
+                user: null,
+                bearerToken: null,
+                refreshToken: null
+            });
             
         }else{
             console.log("User not logged in");
@@ -210,6 +199,8 @@ export function useRefreshToken() {
         } else{
             response.json().then((res) => {
                 setMessage("Token successfully invalidated");
+                localStorage.setItem("bearerToken", res.bearerToken.token);
+                localStorage.setItem("refreshToken", res.refreshToken.token);
                 setNewBearerToken(res.bearerToken.token);
                 setAuthState({
                     isAuthenticated: true,
@@ -217,8 +208,7 @@ export function useRefreshToken() {
                     bearerToken: res.bearerToken.token,
                     refreshToken: res.refreshToken.token
                 });
-                localStorage.setItem("bearerToken", res.bearerToken.token);
-                localStorage.setItem("refreshToken", res.refreshToken.token);
+                
                 setIsRefreshed(true);
                 console.log("Token successfully updated, new token:", res.bearerToken.token) 
               })
