@@ -13,19 +13,18 @@ export const AuthContext = createContext({
 export function AuthContextProvider ( {children} ){
     const { refresh, newBearertoken, message, isRefreshed } = useRefreshToken();
     const navigate = useNavigate();
+    const bearerToken = localStorage.getItem('bearerToken');
+    const refreshToken = localStorage.getItem('refreshToken');
     const [ authState, setAuthState ] = useState({
 
         isAuthenticated: localStorage.getItem('isAuthenticated'),
         user: localStorage.getItem('user'),
-        bearerToken: localStorage.getItem('bearerToken'),
-        refreshToken: localStorage.getItem('refreshToken')
+        bearerToken: bearerToken,
+        refreshToken: refreshToken
 
     });
 
-    const checkAuthStatus = () => {
-
-        const bearerToken = localStorage.getItem("bearerToken");
-        const refreshToken = localStorage.getItem("refreshToken");
+    const checkAuthStatus = async () => {
         if(bearerToken){
             const user = jwtDecode(bearerToken).email;
             const decodedBearer = jwtDecode(bearerToken);
@@ -45,13 +44,15 @@ export function AuthContextProvider ( {children} ){
                             bearerToken: null,
                             refreshToken: null,
                         });
+                        console.log("Expired refresh token");
                         
                         alert("Your session has expired. Please log in again.");
                         navigate("/login")
                     }else{
+                        console.log("Old bearer:", bearerToken);
 
                         // If refreshToken still valid, refresh bearerToken
-                        refresh().then(() => {
+                        await refresh().then(() => {
                             console.log(message, "isRefreshed", isRefreshed, newBearertoken)
                         });
                     }
@@ -77,6 +78,7 @@ export function AuthContextProvider ( {children} ){
                     bearerToken: bearerToken,
                     refreshToken: refreshToken,
                 });
+                console.log("Authenticated");
             }
         }else{
             localStorage.setItem("isAuthenticated", false);
@@ -98,3 +100,8 @@ export function AuthContextProvider ( {children} ){
     </AuthContext.Provider>
     );
 }
+
+export const useAuth = () => {
+    const { authState, setAuthState } = useContext(AuthContext);
+    return { authState, setAuthState };
+  };

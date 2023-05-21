@@ -105,7 +105,7 @@ export default function Movies() {
     if (error) {
         console.log(error)
         return(
-            <div>ERROR!</div>
+            <div className="loading">ERROR!</div>
         )
     }
     return loading ? (

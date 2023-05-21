@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext, useAuth } from '../contexts/AuthContext';
 const API_URL = "http://sefdb02.qut.edu.au:3000/user"
 
 
@@ -52,7 +52,7 @@ export function useRegistration() {
     return { register, message: message, isCreated: isCreated, message: message,  loading: isLoading };
 }
 export function useLogin() {
-    const { authState, setAuthState } = useContext(AuthContext);
+    const { authState, setAuthState } = useAuth();
     const loginURL = API_URL + "/login";
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [message, setMessage] = useState('');
@@ -161,7 +161,7 @@ export function useLogout() {
 
 
 export function useRefreshToken() {
-    const { authState, setAuthState } = useContext(AuthContext);
+    const { authState, setAuthState } = useAuth();;
     const refreshURL = API_URL + "/refresh"
     const [ newBearertoken, setNewBearerToken ] = useState("");
     const [ message, setMessage ] = useState("");
@@ -173,48 +173,37 @@ export function useRefreshToken() {
     const navigate = useNavigate();
     
     const refresh = async () => {
-        try{
-        console.log(refreshToken)
-        const response = await fetch(refreshURL, {
+        return fetch(refreshURL, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 refreshToken: refreshToken
             })
-        }); 
-        if (!response.ok){
-            if(response.status === 401) {
-                setMessage("JWT token has expired");
-            }else if(response.status === 400){
-                setMessage("Request body incomplete, refresh token required");
-            }else if(response.status === 429){
-                setMessage("Too many requests, please try again later.");
-            }else{
-                setMessage("There was an error");
-            }
-            setIsRefreshed(false)
+        }).then((response) => response.json()).then((responseData) => {
+            if (responseData.error){
 
-            
-
-        } else{
-            response.json().then((res) => {
+                setMessage(responseData.message);
+                setIsRefreshed(false)
+                console.log("Error from authAPI", responseData)
+            } else{
                 setMessage("Token successfully invalidated");
-                localStorage.setItem("bearerToken", res.bearerToken.token);
-                localStorage.setItem("refreshToken", res.refreshToken.token);
-                setNewBearerToken(res.bearerToken.token);
+                localStorage.setItem("bearerToken", responseData.bearerToken.token);
+                localStorage.setItem("refreshToken", responseData.refreshToken.token);
+                setNewBearerToken(responseData.bearerToken.token);
+                console.log("New bearer token from authAPI", responseData.bearerToken.token)
                 setAuthState({
                     isAuthenticated: true,
                     user: email,
-                    bearerToken: res.bearerToken.token,
-                    refreshToken: res.refreshToken.token
+                    bearerToken: responseData.bearerToken.token,
+                    refreshToken: responseData.refreshToken.token
                 });
                 
                 setIsRefreshed(true);
-                console.log("Token successfully updated, new token:", res.bearerToken.token) 
-              })
-            }
-        }catch (error) {
-            throw new Error(error.message)
-        }}
+                console.log("Token successfully updated, new token:", responseData.bearerToken.token) 
+
+                }
+        }); 
+        
+    }
     return ( { refresh, newBearertoken: newBearertoken, message: message, isRefreshed: isRefreshed } )
 }

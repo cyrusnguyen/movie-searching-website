@@ -13,13 +13,13 @@ import logo from '../assets/logo.png';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom'
 import { useLogout } from '../api/authAPI';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext, useAuth } from '../contexts/AuthContext';
 
 
 export default function NavBar() {
   const [ collapsed, setCollapsed ] = useState(true);
   const { logout } = useLogout();
-  const { authState, setAuthState } = useContext(AuthContext);
+  const { authState, setAuthState } = useAuth();
   const navigate = useNavigate();
   const handleSignout = () => {
     logout();
@@ -55,7 +55,7 @@ export default function NavBar() {
             <React.Fragment><NavItem>
               <NavBarLink onClick={handleSignout}>Sign out</NavBarLink>
             </NavItem> 
-            <NavItem className="ms-auto ">
+            <NavItem className="ms-auto">
               Hello, {authState.user}
             </NavItem>
             </React.Fragment> :
@@ -86,6 +86,13 @@ const NavBarComponent = styled.div`
       border-radius: 3px;
 
     }
+
+    @media only screen and (max-width: 991.5px) {
+      .ms-auto{
+        margin-top: 0.5rem;
+        margin-left: 1rem !important;
+      }
+  }
 `;
 const NavBarLink = styled(Link)`
     font-size: 1.2rem;
