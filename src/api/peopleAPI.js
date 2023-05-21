@@ -33,7 +33,7 @@ export function usePersonSearch(id) {
                 });
         
         },
-        [],
+        [token],
         );
     return {
         loading,

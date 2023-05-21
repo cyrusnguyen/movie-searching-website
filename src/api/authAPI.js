@@ -180,7 +180,7 @@ export function useRefreshToken() {
                 refreshToken: refreshToken
             })
         }).then((response) => response.json()).then((responseData) => {
-            if (responseData.error){
+            if (responseData.error === true){
 
                 setMessage(responseData.message);
                 setIsRefreshed(false)
