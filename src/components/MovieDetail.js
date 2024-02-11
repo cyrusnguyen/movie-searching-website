@@ -7,19 +7,19 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { AuthContext } from '../contexts/AuthContext';
 
-export default function MovieDetail (){
+export default function MovieDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { authState } = useContext(AuthContext);
 
 
-    
+
     const { loading, movieDetails, error } = useMovieDetail(id);
     const columns = [
         { headerName: "ID", field: "id", hide: "true" },
-        { headerName: "Role", field: "category", filter: 'agTextColumnFilter', minWidth: 200},
-        { headerName: "Name", field: "name", filter: 'agTextColumnFilter', minWidth: 300},
-        { headerName: "Characters", field: "characters", filter: 'agTextColumnFilter', minWidth: 400, flex: 1},
+        { headerName: "Role", field: "category", filter: 'agTextColumnFilter', minWidth: 200 },
+        { headerName: "Name", field: "name", filter: 'agTextColumnFilter', minWidth: 300 },
+        { headerName: "Characters", field: "characters", filter: 'agTextColumnFilter', minWidth: 400, flex: 1 },
     ]
     const defaultColDef = [
         {
@@ -32,66 +32,67 @@ export default function MovieDetail (){
     return (
         <React.Fragment>
             <MovieDetailComponent>
-                { movieDetails && <React.Fragment>
-                
-                <div className="movieContainer">
-                    <img src={movieDetails.poster} className="movieImage"></img>
-                    <div className="movieInfoContainer">
-                        <h1>{movieDetails.title}</h1>
-                        <div className="movieInfo"> 
-                            <div className="movieInfoLeft">
-                                <p><b>Released in:</b> {movieDetails.year}</p>
-                                <p><b>Runtime:</b> {movieDetails.runtime} minutes</p>
-                                <p><b>Genres:</b> {movieDetails.genres.join(", ")}</p>
-                                <p><b>Country:</b> {movieDetails.country}</p>
-                                <p><b>Box Office:</b> ${movieDetails.boxoffice.toLocaleString()}</p>
-                                <i>{movieDetails.plot}</i>
-                            </div>
-                            <div className="movieInfoRight">
-                                <div className="ratingSection">
-                                    {movieDetails.ratings.map((rating, index) => {
-                                        return <div key={index}>
-                                            <p><b>{rating.source}</b>: {rating.value}</p>
-                                        </div>
-                                    })}
+                {movieDetails && <React.Fragment>
+
+                    <div className="movieContainer">
+                        <img src={movieDetails.poster} className="movieImage"></img>
+                        <div className="movieInfoContainer">
+                            <h1>{movieDetails.title}</h1>
+                            <div className="movieInfo">
+                                <div className="movieInfoLeft">
+                                    <p><b>Released in:</b> {movieDetails.year}</p>
+                                    <p><b>Runtime:</b> {movieDetails.runtime} minutes</p>
+                                    <p><b>Genres:</b> {movieDetails.genres.join(", ")}</p>
+                                    <p><b>Country:</b> {movieDetails.country}</p>
+                                    <p><b>Box Office:</b> ${movieDetails.boxoffice.toLocaleString()}</p>
+                                    <i>{movieDetails.plot}</i>
+                                </div>
+                                <div className="movieInfoRight">
+                                    <div className="ratingSection">
+                                        {movieDetails.ratings.map((rating, index) => {
+                                            return <div key={index}>
+                                                <p><b>{rating.source}</b>: {rating.value}</p>
+                                            </div>
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        
-                    </div>
-                    
-                    
 
-                
-                
-                    
-                        
+
+                        </div>
+
+
+
+
+
+
+
                     </div>
                     <div className="bottomContainer">
-                        <div className="ag-theme-alpine"><AgGridReact 
-                            columnDefs={columns}
-                            rowData={movieDetails.principals.map((movieInfo) => ({
-                                id: movieInfo.id,
-                                category: movieInfo.category.charAt(0).toUpperCase() + movieInfo.category.slice(1),
-                                name: movieInfo.name,
-                                characters: movieInfo.characters.join(", ")
-                            }))}
-                            animateRows={true}
-                            defaultColDef={defaultColDef}
-                            paginationAutoPageSize={true}
-                            pagination={true}
-                            onRowClicked={(row) => navigate(`/person/${row.data.id}`)}
+                        <div className="ag-theme-alpine">
+                            <AgGridReact
+                                columnDefs={columns}
+                                rowData={movieDetails.principals.map((movieInfo) => ({
+                                    id: movieInfo.id,
+                                    category: movieInfo.category.charAt(0).toUpperCase() + movieInfo.category.slice(1),
+                                    name: movieInfo.name,
+                                    characters: movieInfo.characters
+                                }))}
+                                animateRows={true}
+                                defaultColDef={defaultColDef}
+                                paginationAutoPageSize={true}
+                                pagination={true}
+                                onRowClicked={(row) => navigate(`/person/${row.data.id}`)}
 
                             />
                         </div>
-                        
-                </div>
+
+                    </div>
                 </React.Fragment>
 
                 }
             </MovieDetailComponent>
-            
+
 
         </React.Fragment>
     )

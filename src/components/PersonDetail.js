@@ -16,25 +16,25 @@ export default function PersonDetail() {
     const { personDetails, loading, error } = usePersonSearch(id);
 
     const labelItems = ['0-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10']
-    const [ chartData, setChartData ] = useState({
+    const [chartData, setChartData] = useState({
         labels: labelItems,
         datasets: [
-          {
-            label: 'Counts of ratings',
-            data: null,
-            backgroundColor: "black",
-            borderColor: "black",
-            borderWidth: 1,
-          },
+            {
+                label: 'Counts of ratings',
+                data: null,
+                backgroundColor: "black",
+                borderColor: "black",
+                borderWidth: 1,
+            },
         ],
     })
 
     const columns = [
         { headerName: "ID", field: "id", hide: "true" },
-        { headerName: "Role", field: "role"},
-        { headerName: "Movie", field: "movieName", filter: 'agTextColumnFilter', minWidth: 200},
-        { headerName: "Characters", field: "characters", filter: 'agTextColumnFilter', minWidth: 300},
-        { headerName: "Rating", field: "rating", filter: 'agTextColumnFilter', minWidth: 400, flex: 1},
+        { headerName: "Role", field: "role" },
+        { headerName: "Movie", field: "movieName", filter: 'agTextColumnFilter', minWidth: 200 },
+        { headerName: "Characters", field: "characters", filter: 'agTextColumnFilter', minWidth: 300 },
+        { headerName: "Rating", field: "rating", filter: 'agTextColumnFilter', minWidth: 400, flex: 1 },
     ]
     const defaultColDef = [
         {
@@ -48,26 +48,26 @@ export default function PersonDetail() {
     useEffect(() => {
         var newRatingCounts = new Array(10).fill(0);
 
-        if(personDetails){
+        if (personDetails) {
             personDetails.roles.map((personRoles) => {
                 newRatingCounts[Math.floor(personRoles.imdbRating)] += 1;
             })
         };
-        
+
         setChartData({
             labels: labelItems,
             datasets: [
-              {
-                label: 'Counts of ratings',
-                data: newRatingCounts,
-                backgroundColor: generateRGBAColor(0.5, labelItems.length),
-                borderColor: generateRGBAColor(1, labelItems.length),
-                borderWidth: 1,
-              },
+                {
+                    label: 'Counts of ratings',
+                    data: newRatingCounts,
+                    backgroundColor: generateRGBAColor(0.5, labelItems.length),
+                    borderColor: generateRGBAColor(1, labelItems.length),
+                    borderWidth: 1,
+                },
             ],
         })
-    },[personDetails])
-    
+    }, [personDetails])
+
     return (
         error ? (
             <React.Fragment>
@@ -76,48 +76,48 @@ export default function PersonDetail() {
                     <h2>Please <Link to="/login">click here</Link> to log in</h2>
                 </ErrorComponent>
             </React.Fragment>
-        ) : 
-        (
-        <PersonDetailComponent>
-            { personDetails &&
-            <React.Fragment>
-            <h1>{personDetails.name}</h1>
-            <h2>{personDetails.birthYear} - {personDetails.deathYear}</h2>
-            <div className="gridContainer">
-                <div className="ag-theme-alpine">
-                    <AgGridReact 
-                        columnDefs={columns}
-                        rowData={personDetails.roles.map((personRoles) => ({
-                            id: personRoles.movieId,
-                            movieName: personRoles.movieName,
-                            role: personRoles.category.charAt(0).toUpperCase() + personRoles.category.slice(1),
-                            rating: personRoles.imdbRating,
-                            characters: personRoles.characters.join(", ")
-                        }))}
-                        animateRows={true}
-                        defaultColDef={defaultColDef}
-                        paginationAutoPageSize={true}
-                        pagination={true}
-                        onRowClicked={(row) => navigate(`/movie/${row.data.id}`)}
+        ) :
+            (
+                <PersonDetailComponent>
+                    {personDetails &&
+                        <React.Fragment>
+                            <h1>{personDetails.name}</h1>
+                            <h2>{personDetails.birthYear} - {personDetails.deathYear}</h2>
+                            <div className="gridContainer">
+                                <div className="ag-theme-alpine">
+                                    <AgGridReact
+                                        columnDefs={columns}
+                                        rowData={personDetails.roles.map((personRoles) => ({
+                                            id: personRoles.movieId,
+                                            movieName: personRoles.movieName,
+                                            role: personRoles.category.charAt(0).toUpperCase() + personRoles.category.slice(1),
+                                            rating: personRoles.imdbRating,
+                                            characters: personRoles.characters
+                                        }))}
+                                        animateRows={true}
+                                        defaultColDef={defaultColDef}
+                                        paginationAutoPageSize={true}
+                                        pagination={true}
+                                        onRowClicked={(row) => navigate(`/movie/${row.data.id}`)}
 
-                        />
-                </div>
-            </div>
-            <div className="imdbChart">
-                <h3>IMDB ratings at a glance</h3>
-                <div className="chartContainer" style={{width:800}}>
-                    {chartData && <Bar data={chartData}/>}
-                </div>
-            </div>
-            </React.Fragment>
-            }
-        </PersonDetailComponent>
-        )
-            
-        
-        
-        
-        
+                                    />
+                                </div>
+                            </div>
+                            <div className="imdbChart">
+                                <h3>IMDB ratings at a glance</h3>
+                                <div className="chartContainer" style={{ width: 800 }}>
+                                    {chartData && <Bar data={chartData} />}
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    }
+                </PersonDetailComponent>
+            )
+
+
+
+
+
     )
 }
 
@@ -151,15 +151,15 @@ const ErrorComponent = styled.div`
 `
 function generateRGBAColor(alphaValue, numberOfColors) {
     const listColors = [];
-    
-  
+
+
     for (let i = 0; i < numberOfColors; i++) {
-      var redValue = Math.floor(Math.random() * 256);
-      var greenValue = Math.floor(Math.random() * 256);
-      var blueValue = Math.floor(Math.random() * 256);
-      listColors.push(`rgba(${redValue}, ${greenValue}, ${blueValue}, ${alphaValue})`);
+        var redValue = Math.floor(Math.random() * 256);
+        var greenValue = Math.floor(Math.random() * 256);
+        var blueValue = Math.floor(Math.random() * 256);
+        listColors.push(`rgba(${redValue}, ${greenValue}, ${blueValue}, ${alphaValue})`);
     }
-    
+
     return listColors;
-  }
-  
+}
+

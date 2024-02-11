@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = "http://sefdb02.qut.edu.au:3000"
-
 export function useMovieSearch(query) {
     const [loading, setLoading] = useState(true);
     const [movies, setMovieResults] = useState([]);
@@ -10,17 +8,17 @@ export function useMovieSearch(query) {
     useEffect(
         // the effect
         () => {
-        getPaginationByQuery(query).then((pagination) => setPagination(pagination));
-        getMoviesByQuery(query).then((movies) => {
-            setMovieResults(movies);
+            getPaginationByQuery(query).then((pagination) => setPagination(pagination));
+            getMoviesByQuery(query).then((movies) => {
+                setMovieResults(movies);
             }).catch((e) => {
                 setError(e)
             }).finally(() => {
                 setLoading(false);
-            } );    
+            });
         },
         [query],
-        );
+    );
     return {
         loading,
         movies: movies,
@@ -28,28 +26,29 @@ export function useMovieSearch(query) {
         pagination: pagination
     }
 }
-export function useMovieDetail(id){
-    const [ loading, setLoading ] = useState(true);
-    const [ movieDetails, setMovieDetails ] = useState(null);
-    const [ error, setError ] = useState(null);
-    const [ moviePrincipals, setMoviePrincipals ] = useState(null)
+export function useMovieDetail(id) {
+    const [loading, setLoading] = useState(true);
+    const [movieDetails, setMovieDetails] = useState(null);
+    const [error, setError] = useState(null);
+    const [moviePrincipals, setMoviePrincipals] = useState(null)
 
-    const url = API_URL + `/movies/data/${id}`;
+    const url = process.env.REACT_APP_API_URL + `/movies/data/${id}`;
+
     useEffect(
         // the effect
         () => {
             fetch(url).then((response) => response.json())
-            .then((responseData) => {
-                setMovieDetails(responseData)
-            })
-            .catch((e) => {
-                setError(e)
-            }).finally(() => {
-                setLoading(false);
-            } );
+                .then((responseData) => {
+                    setMovieDetails(responseData)
+                })
+                .catch((e) => {
+                    setError(e)
+                }).finally(() => {
+                    setLoading(false);
+                });
         },
         [],
-        );
+    );
     return {
         loading: loading,
         movieDetails: movieDetails,
@@ -57,30 +56,30 @@ export function useMovieDetail(id){
     }
 }
 function getMoviesByQuery(query) {
-    const url = API_URL + `/movies/search${query}`;
+    const url = process.env.REACT_APP_API_URL + `/movies/search${query}`;
     return fetch(url)
-    .then((res) => res.json())
-    .then((movies) => 
-    movies.data.map((movie) => ({
-        title: movie.title,
-        year: movie.year,
-        imdbID: movie.imdbID,
-        rottenTomatoesRating: movie.rottenTomatoesRating,
-        metacriticRating: movie.metacriticRating,
-        classification: movie.classification
-    })));
+        .then((res) => res.json())
+        .then((movies) =>
+            movies.data.map((movie) => ({
+                title: movie.title,
+                year: movie.year,
+                imdbID: movie.imdbID,
+                rottenTomatoesRating: movie.rottenTomatoesRating,
+                metacriticRating: movie.metacriticRating,
+                classification: movie.classification
+            })));
 }
 function getPaginationByQuery(query) {
-    const url = API_URL + `/movies/search${query}`;
+    const url = process.env.REACT_APP_API_URL + `/movies/search${query}`;
+
     return fetch(url)
-    .then((res) => res.json())
-    .then((movies) => movies.pagination);
+        .then((res) => res.json())
+        .then((movies) => movies.pagination);
 }
-function getMovieDetails(id){
-    const url = API_URL + `/movies/data/${id}`;
+function getMovieDetails(id) {
+    const url = process.env.REACT_APP_API_URL + `/movies/data/${id}`;
     return fetch(url)
-    .then((res) => 
-    {
-        return res.json();
-    });
+        .then((res) => {
+            return res.json();
+        });
 }

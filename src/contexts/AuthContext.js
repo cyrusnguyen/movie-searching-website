@@ -44,17 +44,13 @@ export function AuthContextProvider ( {children} ){
                             bearerToken: null,
                             refreshToken: null,
                         });
-                        console.log("Expired refresh token");
                         
                         alert("Your session has expired. Please log in again.");
                         navigate("/login")
                     }else{
-                        console.log("Old bearer:", bearerToken);
 
                         // If refreshToken still valid, refresh bearerToken
-                        await refresh().then(() => {
-                            console.log(message, "isRefreshed", isRefreshed, newBearertoken)
-                        });
+                        await refresh();
                     }
                 
                 }else{
@@ -78,7 +74,6 @@ export function AuthContextProvider ( {children} ){
                     bearerToken: bearerToken,
                     refreshToken: refreshToken,
                 });
-                console.log("Authenticated");
             }
         }else{
             localStorage.setItem("isAuthenticated", false);

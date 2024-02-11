@@ -103,7 +103,6 @@ export default function Movies() {
     },[searchTerm, searchYear])
 
     if (error) {
-        console.log(error)
         return(
             <div className="loading">ERROR!</div>
         )
