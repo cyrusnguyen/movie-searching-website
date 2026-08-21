@@ -1,0 +1,94 @@
+.searchbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 640px;
+  padding: var(--space-2);
+  background: var(--ink-850);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.searchbar:focus-within {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 4px rgb(139 92 246 / 18%);
+}
+
+.searchbar__icon {
+  display: grid;
+  place-items: center;
+  padding-left: var(--space-3);
+  color: var(--text-subtle);
+  flex-shrink: 0;
+}
+
+.searchbar__input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+}
+
+.searchbar__input:focus {
+  outline: none;
+}
+
+.searchbar__input::placeholder {
+  color: var(--ink-500);
+}
+
+/* Hide the browser's own clear button; we render our own. */
+.searchbar__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.searchbar__clear {
+  display: grid;
+  place-items: center;
+  padding: var(--space-1);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--text-subtle);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.searchbar__clear:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.searchbar__submit {
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-5);
+}
+
+.searchbar--large {
+  max-width: 720px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-1);
+}
+
+.searchbar--large .searchbar__input {
+  padding: var(--space-3) 0;
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 520px) {
+  .searchbar__submit {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
+  }
+
+  .searchbar--large .searchbar__input {
+    font-size: var(--text-base);
+  }
+}

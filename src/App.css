@@ -1,19 +1,9 @@
-
-.right-aligned{
-  justify-content: flex-end;
-}
-.App {
-  background: var(--color-brighter-black);
-  min-height: 100vh;
+.app {
   display: flex;
   flex-direction: column;
+  min-height: 100dvh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app__main {
+  flex: 1;
 }
