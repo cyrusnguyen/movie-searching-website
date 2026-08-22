@@ -4,8 +4,6 @@ React client for the [Movie API](https://github.com/cyrusnguyen/movie-api). Sear
 a film catalogue, compare ratings from three sources, and follow cast and crew
 between titles.
 
-Originally built as a QUT coursework project; rebuilt and hardened since.
-
 ---
 
 ## Quick start
