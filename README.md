@@ -4,6 +4,24 @@ React client for the [Movie API](https://github.com/cyrusnguyen/movie-api). Sear
 a film catalogue, compare ratings from three sources, and follow cast and crew
 between titles.
 
+## Screenshots
+
+![Home page — hero search over a poster-card grid of the highest rated films](docs/screenshots/home.png)
+
+| Browse and filter | Film detail |
+|---|---|
+| ![Browse page with year, genre, rating and sort filters above a poster grid](docs/screenshots/browse.png) | ![Film page with poster, metadata chips, plot, three rating cards and a credits table](docs/screenshots/film.png) |
+
+| Person detail | Profile |
+|---|---|
+| ![Person page with credit stats, a sortable filmography and a rating distribution chart](docs/screenshots/person.png) | ![Profile page with the account fields the API exposes](docs/screenshots/profile.png) |
+
+<p align="center">
+  <img src="docs/screenshots/mobile-home.png" alt="Home page at 390px" width="270">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/mobile-browse.png" alt="Search results at 390px" width="270">
+</p>
+
 ---
 
 ## Quick start
