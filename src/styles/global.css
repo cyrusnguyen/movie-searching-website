@@ -33,6 +33,15 @@ svg {
   max-width: 100%;
 }
 
+/*
+ * The `hidden` attribute is only `display: none` in the UA stylesheet, so any
+ * author rule that sets display — `.notice { display: flex }`, for one — beats
+ * it and the element stays visible. Make the attribute win.
+ */
+[hidden] {
+  display: none !important;
+}
+
 input,
 button,
 textarea,

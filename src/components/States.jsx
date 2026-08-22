@@ -26,10 +26,16 @@ export function EmptyState({ title, description, action }) {
 }
 
 export function ErrorState({ error, title = 'Something went wrong', action }) {
-  const message =
-    typeof error === 'string' ? error : error?.message || 'An unexpected error occurred.';
-
   const needsSignIn = error?.status === 401;
+
+  // Auth failures get the app's own wording. The API's messages are written for
+  // developers integrating against it, so surfacing them here told a visitor
+  // which HTTP header was missing rather than what to do next.
+  const message = needsSignIn
+    ? 'You need to be signed in to see this page.'
+    : typeof error === 'string'
+      ? error
+      : error?.message || 'An unexpected error occurred.';
 
   return (
     <div className="state state--error" role="alert">
