@@ -20,7 +20,9 @@
 
 .detail__hero {
   display: grid;
-  grid-template-columns: minmax(180px, 280px) 1fr;
+  /* Kept modest so a record with no plot or box office — IMDb publishes
+     neither — does not leave a tall void beside the poster. */
+  grid-template-columns: minmax(150px, 230px) 1fr;
   gap: var(--space-6);
   align-items: start;
 }

@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer__inner">
         <p className="footer__credit">
-          Built by Minh Nguyen · <span className="footer__muted">© 2026</span>
+          Built by Cyrus Nguyen · <span className="footer__muted">© 2026</span>
         </p>
         <p className="footer__links">
           <a href="mailto:hoangminh0268@gmail.com">hoangminh0268@gmail.com</a>

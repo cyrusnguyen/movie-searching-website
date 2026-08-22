@@ -9,7 +9,11 @@ const PAGINATION_HEIGHT = 48;
  * reserved 420px — while a long filmography needs a scroll cap.
  */
 export function gridHeight(rowCount, { min = 180, max = 460 } = {}) {
-  const needed = HEADER_HEIGHT + Math.max(rowCount, 1) * ROW_HEIGHT + PAGINATION_HEIGHT;
+  // The slack matters: ag-grid's paginationAutoPageSize floors the rows that
+  // fit, so a container sized to exactly N rows can end up showing N-1 and
+  // paginating a table that had room for everything.
+  const SLACK = 12;
+  const needed = HEADER_HEIGHT + Math.max(rowCount, 1) * ROW_HEIGHT + PAGINATION_HEIGHT + SLACK;
 
   return Math.min(max, Math.max(min, needed));
 }
