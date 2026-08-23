@@ -138,10 +138,62 @@ installed alongside it), and npm flags it with a security hold.
 - Route guarding is a real route wrapper rather than an `alert()` and a redirect
   fired as a side effect of a data-fetching effect.
 
-Tokens still live in `localStorage`, so they remain readable by any successful
-XSS. The API side of this was hardened instead — short-lived bearer tokens,
-rotating refresh tokens with reuse detection, and a strict CSP. Moving to an
-httpOnly cookie would close it properly and is the natural next step.
+#### XSS and token storage
+
+Tokens live in `localStorage`, which is readable by any script that manages to
+run on the page. That is worth being precise about, because the usual advice —
+"use httpOnly cookies" — does not fix it: an attacker running script on your
+origin does not need to *read* the cookie, since the browser attaches it to
+every request they make. httpOnly limits **exfiltration**, not **exploitation**,
+and it brings CSRF along as a new problem.
+
+So the defence is layered on stopping script from running at all:
+
+| Layer | Status |
+|---|---|
+| No injection sinks | No `dangerouslySetInnerHTML`, `innerHTML`, `eval`, `new Function` or `document.write` anywhere in `src/`. React escapes by default; the only `src={}` bindings are `<img>` tags, which cannot execute. |
+| Content-Security-Policy | `script-src 'self'` with **no** `'unsafe-inline'` — injected script cannot execute even if a sink appeared. See below. |
+| Short-lived credentials | Bearer tokens last 10 minutes; refresh tokens rotate on every use, and replaying a rotated one revokes the whole family. A stolen token is worth minutes and trips the alarm on reuse. |
+| Transport | `connect-src` names exactly one API origin, so script cannot post data to an attacker's host. |
+
+Moving to httpOnly cookies is still a reasonable further step, but it is a
+smaller improvement than the policy above and is not a substitute for it.
+
+#### The Content-Security-Policy
+
+The policy is **generated at build time** by `csp.js` from `VITE_API_URL`,
+rather than hand-written into `vercel.json`. `connect-src` has to name the API's
+origin, and hard-coding it in a second place means the two drift apart — a
+failure that is silent and total: the deployed app is refused every request to
+its own API with nothing in the UI to explain why. Deriving both from one value
+makes that impossible.
+
+```
+default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+img-src 'self' data: https:; font-src 'self' data:;
+connect-src 'self' <VITE_API_URL origin>;
+base-uri 'self'; form-action 'self'; object-src 'none'
+```
+
+- `script-src` needs no `'unsafe-inline'` because Vite emits a single external
+  module script and no inline ones. That is the whole value of the policy.
+- `style-src` does allow inline styles: React `style={{…}}` and ag-grid both set
+  style attributes. Inline *styles* can restyle a page, not execute code.
+- `base-uri 'self'` matters more than it looks — without it an injected `<base>`
+  tag can repoint every relative script URL at another host, walking around
+  `script-src 'self'`.
+- `frame-ancestors` is set as a real header in `vercel.json`, not here, because
+  browsers ignore it in a `<meta>` tag. `vercel.json` also sets `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy`.
+
+The plugin is build-only. Vite's dev server injects an inline script for hot
+module replacement, so enforcing `script-src 'self'` in dev would break
+`npm run dev`.
+
+Verified in Chromium under the exact production headers: all pages render with
+**zero** CSP violations, ag-grid and chart.js both mount on the detail pages,
+the API is reachable, and a probe `fetch` to an unlisted origin is refused.
+`src/test/csp.test.js` guards the policy against regressions.
 
 ### Design
 
@@ -157,9 +209,21 @@ sign in, search, filter, film, person, profile, sign out, 404 — at 1440px and
 ## Deployment
 
 Not currently deployed; the previous Vercel deployment is gone. `vercel.json` is
-kept current so it can be redeployed. Set `VITE_API_URL` to your API's URL at
-build time, and add the site's origin to the API's `CORS_ORIGIN`.
+kept current so it can be redeployed.
 
 ```bash
 npm run build      # static output in build/
 ```
+
+**`VITE_API_URL` must be set at build time**, not just at runtime — it is baked
+into the bundle *and* into the Content-Security-Policy's `connect-src`. On
+Vercel, set it in the project's environment variables and redeploy; building
+without it leaves the app pointed at `http://localhost:3000`, which a deployed
+browser cannot reach.
+
+Then add the site's origin to the API's allowlist — on Fly that is
+`fly secrets set CORS_ORIGIN=https://your-site.vercel.app`, which needs no
+rebuild.
+
+The two settings are a pair, in opposite directions: `VITE_API_URL` tells the
+site where the API is, and `CORS_ORIGIN` tells the API to accept the site.
